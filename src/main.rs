@@ -38,17 +38,20 @@ fn main() {
     });
 
     let mut terminal = terminal::init();
-    terminal.clear();
-
     let mut game = game::init();
 
     for event in rx {
         match event {
             Event::Tick => {
+                game.update();
+
+                terminal.clear();
                 game.render(&mut terminal);
                 terminal.flush();
             },
             Event::Quit => break,
         }
     }
+
+    terminal.reset();
 }

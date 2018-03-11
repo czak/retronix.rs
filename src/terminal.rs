@@ -6,9 +6,11 @@ use std::io::{self, Write};
 use game;
 
 pub fn init() -> Terminal {
-    Terminal {
-        stdout: io::stdout().into_raw_mode().unwrap(),
-    }
+    let mut stdout = io::stdout().into_raw_mode().unwrap();
+    write!(stdout, "{}", termion::cursor::Hide).unwrap();
+    stdout.flush().unwrap();
+
+    Terminal { stdout }
 }
 
 pub struct Terminal {
@@ -18,11 +20,15 @@ pub struct Terminal {
 impl Terminal {
     pub fn clear(&mut self) {
         write!(self.stdout, "{}", termion::clear::All).unwrap();
-        self.flush();
     }
 
     pub fn flush(&mut self) {
         self.stdout.flush().unwrap();
+    }
+
+    pub fn reset(&mut self) {
+        write!(self.stdout, "{}", termion::cursor::Show).unwrap();
+        self.flush();
     }
 }
 
