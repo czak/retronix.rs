@@ -1,5 +1,8 @@
 extern crate termion;
 
+mod game;
+mod terminal;
+
 use termion::event::Key;
 use termion::input::TermRead;
 use std::io;
@@ -7,13 +10,7 @@ use std::sync::mpsc;
 use std::thread;
 use std::time;
 
-mod game;
-mod terminal;
-
-enum Event {
-    Tick,
-    Quit,
-}
+use game::Event;
 
 fn main() {
     let stdin = io::stdin();
@@ -24,6 +21,10 @@ fn main() {
     thread::spawn(move || {
         for c in stdin.keys() {
             match c.unwrap() {
+                Key::Up        => tx2.send(Event::Up).unwrap(),
+                Key::Down      => tx2.send(Event::Down).unwrap(),
+                Key::Left      => tx2.send(Event::Left).unwrap(),
+                Key::Right     => tx2.send(Event::Right).unwrap(),
                 Key::Char('q') => tx2.send(Event::Quit).unwrap(),
                 _ => {},
             }
@@ -43,6 +44,7 @@ fn main() {
     for event in rx {
         match event {
             Event::Tick => {
+                game.handle_event();
                 game.update();
 
                 terminal.clear();
@@ -50,6 +52,9 @@ fn main() {
                 terminal.flush();
             },
             Event::Quit => break,
+            e => {
+                game.push_event(e);
+            },
         }
     }
 
