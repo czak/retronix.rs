@@ -2,11 +2,13 @@ extern crate termion;
 
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-use std::io::{self, Write};
+use std::io;
 use std::sync::mpsc;
 use std::thread;
 use std::time;
+
+mod game;
+mod terminal;
 
 enum Event {
     Tick,
@@ -15,13 +17,6 @@ enum Event {
 
 fn main() {
     let stdin = io::stdin();
-    let mut stdout = io::stdout().into_raw_mode().unwrap();
-
-    write!(stdout, "{}{}",
-           termion::clear::All,
-           termion::cursor::Goto(1, 1)).unwrap();
-    stdout.flush().unwrap();
-
 
     let (tx, rx) = mpsc::channel();
 
@@ -42,11 +37,16 @@ fn main() {
         }
     });
 
+    let mut terminal = terminal::init();
+    terminal.clear();
+
+    let mut game = game::init();
+
     for event in rx {
         match event {
             Event::Tick => {
-                write!(stdout, "Tick").unwrap();
-                stdout.flush().unwrap();
+                game.render(&mut terminal);
+                terminal.flush();
             },
             Event::Quit => break,
         }
