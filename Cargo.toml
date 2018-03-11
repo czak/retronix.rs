@@ -1,0 +1,6 @@
+[package]
+name = "retronix"
+version = "0.1.0"
+authors = ["Łukasz Adamczak <lukasz@czak.pl>"]
+
+[dependencies]
