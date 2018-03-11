@@ -27,17 +27,33 @@ impl Player {
     }
 }
 
+#[derive(Clone)]
+enum Field {
+    Land,
+}
+
 pub struct Game {
     player: Player,
+    board: Vec<Vec<Field>>,
     events: VecDeque<Event>,
 }
 
 impl Game {
     pub fn render<R: Renderer>(&mut self, renderer: &mut R) {
+        for (y, row) in self.board.iter().enumerate() {
+            for (x, _) in row.iter().enumerate() {
+                renderer.put_cell(
+                    x as u16 + 1,
+                    y as u16 + 1,
+                    '█'
+                );
+            }
+        }
+
         renderer.put_cell(
             self.player.x as u16,
             self.player.y as u16,
-            '█'
+            'x'
         );
     }
 
@@ -78,6 +94,7 @@ pub fn init() -> Game {
             x: 1, y: 1,
             dx: 0, dy: 0,
         },
+        board: vec![vec![Field::Land; 10]; 5],
         events: VecDeque::new(),
     }
 }
