@@ -23,26 +23,11 @@ pub struct Player {
     dy: i16,
 }
 
-impl Player {
-    fn animate(&mut self) {
-        let x = self.x + self.dx;
-        let y = self.y + self.dy;
-
-        if x < 0 || x >= BOARD_WIDTH as i16 ||
-            y < 0 || y >= BOARD_HEIGHT as i16 {
-            self.dx = 0;
-            self.dy = 0;
-        } else {
-            self.x = x;
-            self.y = y;
-        }
-    }
-}
-
 #[derive(Clone)]
 enum Field {
     Land,
     Sea,
+    Sand,
 }
 
 pub struct Game {
@@ -58,6 +43,7 @@ impl Game {
                 let c = match field {
                     &Field::Land => '█',
                     &Field::Sea => '░',
+                    &Field::Sand => '█',
                 };
                 renderer.put_cell(
                     x as u16,
@@ -75,7 +61,7 @@ impl Game {
     }
 
     pub fn update(&mut self) {
-        self.player.animate();
+        self.move_player();
     }
 
     pub fn push_event(&mut self, e: Event) {
@@ -101,6 +87,25 @@ impl Game {
                 self.player.dy = 0;
             },
             _ => {},
+        }
+    }
+
+    fn move_player(&mut self) {
+        let player = &mut self.player;
+        let x = player.x + player.dx;
+        let y = player.y + player.dy;
+
+        if x < 0 || x >= BOARD_WIDTH as i16 ||
+            y < 0 || y >= BOARD_HEIGHT as i16 {
+            player.dx = 0;
+            player.dy = 0;
+        } else {
+            if let Field::Sea = self.board[player.y as usize][player.x as usize] {
+                self.board[player.y as usize][player.x as usize] = Field::Sand;
+            }
+
+            player.x = x;
+            player.y = y;
         }
     }
 }
