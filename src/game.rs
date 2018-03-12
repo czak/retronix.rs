@@ -1,5 +1,8 @@
 use std::collections::VecDeque;
 
+const BOARD_WIDTH: usize = 10;
+const BOARD_HEIGHT: usize = 5;
+
 pub enum Event {
     Tick,
     Quit,
@@ -94,7 +97,7 @@ pub fn init() -> Game {
             x: 1, y: 1,
             dx: 0, dy: 0,
         },
-        board: vec![vec![Field::Land; 10]; 5],
+        board: vec![vec![Field::Land; BOARD_WIDTH]; BOARD_HEIGHT],
         events: VecDeque::new(),
     }
 }
