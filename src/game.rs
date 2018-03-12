@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
-const BOARD_WIDTH: usize = 10;
-const BOARD_HEIGHT: usize = 5;
+const BOARD_WIDTH: usize = 20;
+const BOARD_HEIGHT: usize = 8;
 
 pub enum Event {
     Tick,
@@ -42,6 +42,7 @@ impl Player {
 #[derive(Clone)]
 enum Field {
     Land,
+    Sea,
 }
 
 pub struct Game {
@@ -53,11 +54,15 @@ pub struct Game {
 impl Game {
     pub fn render<R: Renderer>(&mut self, renderer: &mut R) {
         for (y, row) in self.board.iter().enumerate() {
-            for (x, _) in row.iter().enumerate() {
+            for (x, field) in row.iter().enumerate() {
+                let c = match field {
+                    &Field::Land => '█',
+                    &Field::Sea => '░',
+                };
                 renderer.put_cell(
                     x as u16,
                     y as u16,
-                    '█'
+                    c
                 );
             }
         }
@@ -101,12 +106,22 @@ impl Game {
 }
 
 pub fn init() -> Game {
+    let mut board = vec![vec![Field::Sea; BOARD_WIDTH]; BOARD_HEIGHT];
+
+    for (y, row) in board.iter_mut().enumerate() {
+        for (x, field) in row.iter_mut().enumerate() {
+            if x < 2 || x >= BOARD_WIDTH - 2 || y < 2 || y >= BOARD_HEIGHT -2 {
+                *field = Field::Land;
+            }
+        }
+    }
+
     Game {
         player: Player {
             x: 0, y: 0,
             dx: 0, dy: 0,
         },
-        board: vec![vec![Field::Land; BOARD_WIDTH]; BOARD_HEIGHT],
+        board,
         events: VecDeque::new(),
     }
 }
