@@ -34,7 +34,7 @@ fn main() {
     thread::spawn(move || {
         loop {
             tx.send(Event::Tick).unwrap();
-            thread::sleep(time::Duration::from_millis(500));
+            thread::sleep(time::Duration::from_millis(200));
         }
     });
 

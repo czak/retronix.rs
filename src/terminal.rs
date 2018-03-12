@@ -35,7 +35,7 @@ impl Terminal {
 impl game::Renderer for Terminal {
     fn put_cell(&mut self, x: u16, y: u16, c: char) {
         write!(self.stdout, "{}{}",
-               termion::cursor::Goto(x, y), c).unwrap();
+               termion::cursor::Goto(x + 1, y + 1), c).unwrap();
     }
 }
 

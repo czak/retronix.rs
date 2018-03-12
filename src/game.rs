@@ -25,8 +25,17 @@ pub struct Player {
 
 impl Player {
     fn animate(&mut self) {
-        self.x += self.dx;
-        self.y += self.dy;
+        let x = self.x + self.dx;
+        let y = self.y + self.dy;
+
+        if x < 0 || x >= BOARD_WIDTH as i16 ||
+            y < 0 || y >= BOARD_HEIGHT as i16 {
+            self.dx = 0;
+            self.dy = 0;
+        } else {
+            self.x = x;
+            self.y = y;
+        }
     }
 }
 
@@ -46,8 +55,8 @@ impl Game {
         for (y, row) in self.board.iter().enumerate() {
             for (x, _) in row.iter().enumerate() {
                 renderer.put_cell(
-                    x as u16 + 1,
-                    y as u16 + 1,
+                    x as u16,
+                    y as u16,
                     '█'
                 );
             }
@@ -94,7 +103,7 @@ impl Game {
 pub fn init() -> Game {
     Game {
         player: Player {
-            x: 1, y: 1,
+            x: 0, y: 0,
             dx: 0, dy: 0,
         },
         board: vec![vec![Field::Land; BOARD_WIDTH]; BOARD_HEIGHT],
