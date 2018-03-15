@@ -12,6 +12,9 @@ use std::time;
 
 use game::Event;
 
+const WIDTH: usize = 20;
+const HEIGHT: usize = 8;
+
 fn main() {
     let stdin = io::stdin();
 
@@ -38,7 +41,7 @@ fn main() {
         }
     });
 
-    let mut screen = screen::init();
+    let mut screen = screen::init(WIDTH, HEIGHT);
     let mut game = game::init();
 
     for event in rx {
@@ -57,6 +60,4 @@ fn main() {
             },
         }
     }
-
-    screen.reset();
 }

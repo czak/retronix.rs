@@ -5,37 +5,52 @@ use std::io::{self, Write};
 
 use game;
 
-pub fn init() -> Screen {
+pub fn init(width: usize, height: usize) -> Screen {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
-    write!(stdout, "{}", termion::cursor::Hide).unwrap();
+    write!(stdout, "{}{}",
+           termion::clear::All,
+           termion::cursor::Hide).unwrap();
     stdout.flush().unwrap();
 
-    Screen { stdout }
+    Screen {
+        stdout,
+        buffer: vec![vec![' '; width]; height],
+    }
 }
 
 pub struct Screen {
     stdout: termion::raw::RawTerminal<io::Stdout>,
+    buffer: Vec<Vec<char>>,
 }
 
 impl Screen {
     pub fn clear(&mut self) {
-        write!(self.stdout, "{}", termion::clear::All).unwrap();
+        for row in self.buffer.iter_mut() {
+            for cell in row.iter_mut() {
+                *cell = ' ';
+            }
+        }
     }
 
     pub fn flush(&mut self) {
+        write!(self.stdout, "{}", termion::cursor::Goto(1, 1)).unwrap();
+        for row in self.buffer.iter() {
+            write!(self.stdout, "{}\n\r", row.iter().collect::<String>()).unwrap();
+        }
         self.stdout.flush().unwrap();
     }
+}
 
-    pub fn reset(&mut self) {
+impl Drop for Screen {
+    fn drop(&mut self) {
         write!(self.stdout, "{}", termion::cursor::Show).unwrap();
-        self.flush();
+        self.stdout.flush().unwrap();
     }
 }
 
 impl game::Renderer for Screen {
     fn put_cell(&mut self, x: u16, y: u16, c: char) {
-        write!(self.stdout, "{}{}",
-               termion::cursor::Goto(x + 1, y + 1), c).unwrap();
+        self.buffer[y as usize][x as usize] = c;
     }
 }
 
