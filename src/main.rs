@@ -1,7 +1,7 @@
 extern crate termion;
 
 mod game;
-mod terminal;
+mod screen;
 
 use termion::event::Key;
 use termion::input::TermRead;
@@ -38,7 +38,7 @@ fn main() {
         }
     });
 
-    let mut terminal = terminal::init();
+    let mut screen = screen::init();
     let mut game = game::init();
 
     for event in rx {
@@ -47,9 +47,9 @@ fn main() {
                 game.handle_event();
                 game.update();
 
-                terminal.clear();
-                game.render(&mut terminal);
-                terminal.flush();
+                screen.clear();
+                game.render(&mut screen);
+                screen.flush();
             },
             Event::Quit => break,
             e => {
@@ -58,5 +58,5 @@ fn main() {
         }
     }
 
-    terminal.reset();
+    screen.reset();
 }

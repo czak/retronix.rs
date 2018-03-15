@@ -5,19 +5,19 @@ use std::io::{self, Write};
 
 use game;
 
-pub fn init() -> Terminal {
+pub fn init() -> Screen {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     write!(stdout, "{}", termion::cursor::Hide).unwrap();
     stdout.flush().unwrap();
 
-    Terminal { stdout }
+    Screen { stdout }
 }
 
-pub struct Terminal {
+pub struct Screen {
     stdout: termion::raw::RawTerminal<io::Stdout>,
 }
 
-impl Terminal {
+impl Screen {
     pub fn clear(&mut self) {
         write!(self.stdout, "{}", termion::clear::All).unwrap();
     }
@@ -32,7 +32,7 @@ impl Terminal {
     }
 }
 
-impl game::Renderer for Terminal {
+impl game::Renderer for Screen {
     fn put_cell(&mut self, x: u16, y: u16, c: char) {
         write!(self.stdout, "{}{}",
                termion::cursor::Goto(x + 1, y + 1), c).unwrap();
