@@ -102,6 +102,11 @@ impl Game {
         } else {
             if let Field::Sea = self.board[player.y as usize][player.x as usize] {
                 self.board[player.y as usize][player.x as usize] = Field::Sand;
+
+                if let Field::Land = self.board[y as usize][x as usize] {
+                    player.dx = 0;
+                    player.dy = 0;
+                }
             }
 
             player.x = x;
