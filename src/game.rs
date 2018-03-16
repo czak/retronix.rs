@@ -43,7 +43,7 @@ impl Game {
                 let c = match field {
                     &Field::Land => '█',
                     &Field::Sea => '░',
-                    &Field::Sand => '█',
+                    &Field::Sand => '▒',
                 };
                 renderer.put_cell(
                     x as u16,
