@@ -50,6 +50,6 @@ impl Game {
 pub fn init() -> Game {
     Game {
         events: VecDeque::new(),
-        states: vec![Box::new(states::PlayState::new())],
+        states: vec![Box::new(states::WelcomeState {})],
     }
 }
