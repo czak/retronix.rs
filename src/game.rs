@@ -106,6 +106,14 @@ impl Game {
                 if let Field::Land = self.board[y as usize][x as usize] {
                     player.dx = 0;
                     player.dy = 0;
+
+                    for row in self.board.iter_mut() {
+                        for field in row.iter_mut() {
+                            if let &mut Field::Sand = field {
+                                *field = Field::Land;
+                            }
+                        }
+                    }
                 }
             }
 
