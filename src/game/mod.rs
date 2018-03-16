@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-mod state;
+mod states;
 
 pub enum Event {
     Tick,
@@ -50,6 +50,6 @@ impl Game {
 pub fn init() -> Game {
     Game {
         events: VecDeque::new(),
-        states: vec![Box::new(state::PlayState::new())],
+        states: vec![Box::new(states::PlayState::new())],
     }
 }
