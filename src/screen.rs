@@ -33,9 +33,10 @@ impl Screen {
     }
 
     pub fn flush(&mut self) {
+        let (cols, rows) = termion::terminal_size().unwrap();
         write!(self.stdout, "{}", termion::cursor::Goto(1, 1)).unwrap();
-        for row in self.buffer.iter() {
-            write!(self.stdout, "{}\n\r", row.iter().collect::<String>()).unwrap();
+        for row in self.buffer.iter().take((rows - 1) as usize) {
+            write!(self.stdout, "{}\n\r", row.iter().take(cols as usize).collect::<String>()).unwrap();
         }
         self.stdout.flush().unwrap();
     }
