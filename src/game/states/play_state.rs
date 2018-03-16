@@ -1,4 +1,4 @@
-use super::super::{Event, State, Renderer};
+use game::{Event, State, Renderer};
 
 // TODO: Pass when constructing the state
 const BOARD_WIDTH: usize = 20;
