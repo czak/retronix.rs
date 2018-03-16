@@ -34,10 +34,11 @@ pub struct Game {
     player: Player,
     board: Vec<Vec<Field>>,
     events: VecDeque<Event>,
+    states: Vec<Box<State>>,
 }
 
 impl Game {
-    pub fn render<R: Renderer>(&mut self, renderer: &mut R) {
+    pub fn render(&mut self, renderer: &mut Renderer) {
         for (y, row) in self.board.iter().enumerate() {
             for (x, field) in row.iter().enumerate() {
                 let c = match field {
