@@ -28,12 +28,15 @@ pub struct Game {
 
 impl Game {
     pub fn render(&mut self, renderer: &mut Renderer) {
-        // TODO: ensure there is a state on top
-        self.states[0].render(renderer);
+        if let Some(state) = self.states.last_mut() {
+            state.render(renderer);
+        }
     }
 
     pub fn update(&mut self) {
-        self.states[0].update();
+        if let Some(state) = self.states.last_mut() {
+            state.update();
+        }
     }
 
     pub fn push_event(&mut self, e: Event) {
@@ -42,7 +45,9 @@ impl Game {
 
     pub fn handle_event(&mut self) {
         if let Some(event) = self.events.pop_front() {
-            self.states[0].handle_event(event);
+            if let Some(state) = self.states.last_mut() {
+                state.handle_event(event);
+            }
         }
     }
 }
