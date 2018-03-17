@@ -44,7 +44,7 @@ impl PlayState {
         }
     }
 
-    fn move_player(&mut self) {
+    fn move_player(&mut self) -> Result<(), ()> {
         let player = &mut self.player;
         let x = player.x + player.dx;
         let y = player.y + player.dy;
@@ -68,20 +68,26 @@ impl PlayState {
                             }
                         }
                     }
+                } else if let Field::Sand = self.board[y as usize][x as usize] {
+                    return Err(());
                 }
             }
 
             player.x = x;
             player.y = y;
         }
+
+        Ok(())
     }
 }
 
 impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
-        self.move_player();
-
-        None
+        if self.move_player().is_ok() {
+            None
+        } else {
+            Some(Box::new(super::GameOverState {}))
+        }
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
