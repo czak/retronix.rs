@@ -5,11 +5,13 @@ const BOARD_WIDTH: usize = 20;
 const BOARD_HEIGHT: usize = 8;
 
 pub struct PlayState {
-    player: Player,
+    player: Actor,
+    sea_enemies: Vec<Actor>,
+    land_enemies: Vec<Actor>,
     board: Vec<Vec<Field>>,
 }
 
-struct Player {
+struct Actor {
     x: i16,
     y: i16,
     dx: i16,
@@ -36,10 +38,16 @@ impl PlayState {
         }
 
         PlayState {
-            player: Player {
+            player: Actor {
                 x: 0, y: 0,
                 dx: 0, dy: 0,
             },
+            sea_enemies: vec![
+                Actor { x: 2, y: 2, dx: 1, dy: 1 },
+            ],
+            land_enemies: vec![
+                Actor { x: BOARD_WIDTH as i16 / 2, y: 0, dx: 1, dy: 1 },
+            ],
             board,
         }
     }
@@ -79,11 +87,40 @@ impl PlayState {
 
         Ok(())
     }
+
+    fn move_sea_enemies(&mut self) -> Result<(), ()> {
+        for enemy in self.sea_enemies.iter_mut() {
+            let (x, y) = (enemy.x, enemy.y);
+            let (mut dx, mut dy) = (enemy.dx, enemy.dy);
+
+            // Land in my horizontal direction?
+            if let Field::Land = self.board[y as usize][(x + dx) as usize] {
+                dx = -dx;
+            }
+
+            // Land in my vertical direction?
+            if let Field::Land = self.board[(y + dy) as usize][x as usize] {
+                dy = -dy;
+            }
+
+            enemy.x = x + dx;
+            enemy.y = y + dy;
+        }
+
+        Ok(())
+    }
+
+    fn move_actors(&mut self) -> Result<(), ()> {
+        self.move_player()?;
+        self.move_sea_enemies()?;
+
+        Ok(())
+    }
 }
 
 impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
-        if self.move_player().is_ok() {
+        if self.move_actors().is_ok() {
             None
         } else {
             Some(Box::new(super::GameOverState {}))
@@ -111,6 +148,14 @@ impl State for PlayState {
             self.player.y as u16,
             'x'
         );
+
+        for e in self.sea_enemies.iter() {
+            renderer.put_cell(e.x as u16, e.y as u16, 'S');
+        }
+
+        for e in self.land_enemies.iter() {
+            renderer.put_cell(e.x as u16, e.y as u16, 'L');
+        }
     }
 
     fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
