@@ -4,7 +4,8 @@ pub struct WelcomeState {
 }
 
 impl State for WelcomeState {
-    fn update(&mut self) {
+    fn update(&mut self) -> Option<Box<State>> {
+        None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -14,13 +15,13 @@ impl State for WelcomeState {
         }
     }
 
-    fn handle_event(&mut self, event: Event) {
+    fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
         match event {
             Event::Right => {
-                // let state = states::PlayState::new();
-                // self.game.push_state(state);
+                let state = super::PlayState::new();
+                Some(Box::new(state))
             },
-            _ => {},
+            _ => None,
         }
     }
 }

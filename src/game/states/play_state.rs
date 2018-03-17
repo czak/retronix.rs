@@ -78,8 +78,10 @@ impl PlayState {
 }
 
 impl State for PlayState {
-    fn update(&mut self) {
+    fn update(&mut self) -> Option<Box<State>> {
         self.move_player();
+
+        None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -105,7 +107,7 @@ impl State for PlayState {
         );
     }
 
-    fn handle_event(&mut self, event: Event) {
+    fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
         match event {
             Event::Up => {
                 self.player.dx = 0;
@@ -125,5 +127,7 @@ impl State for PlayState {
             },
             _ => {},
         }
+
+        None
     }
 }

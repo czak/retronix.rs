@@ -16,9 +16,9 @@ pub trait Renderer {
 }
 
 pub trait State {
-    fn update(&mut self);
+    fn update(&mut self) -> Option<Box<State>>;
     fn render(&mut self, renderer: &mut Renderer);
-    fn handle_event(&mut self, event: Event);
+    fn handle_event(&mut self, event: Event) -> Option<Box<State>>;
 }
 
 pub struct Game {
@@ -34,8 +34,13 @@ impl Game {
     }
 
     pub fn update(&mut self) {
-        if let Some(state) = self.states.last_mut() {
-            state.update();
+        let transition = {
+            let current_state = self.states.last_mut();
+            current_state.and_then(|s| s.update())
+        };
+
+        if let Some(next_state) = transition {
+            self.states.push(next_state);
         }
     }
 
@@ -45,8 +50,8 @@ impl Game {
 
     pub fn handle_event(&mut self) {
         if let Some(event) = self.events.pop_front() {
-            if let Some(state) = self.states.last_mut() {
-                state.handle_event(event);
+            if let Some(next_state) = self.states.last_mut().and_then(|s| s.handle_event(event)) {
+                self.states.push(next_state);
             }
         }
     }
