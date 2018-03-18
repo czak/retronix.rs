@@ -18,7 +18,7 @@ struct Actor {
     dy: i16,
 }
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 enum Field {
     Land,
     Sea,
@@ -118,9 +118,40 @@ impl PlayState {
         Ok(())
     }
 
+    fn move_land_enemies(&mut self) -> Result<(), ()> {
+        for enemy in self.land_enemies.iter_mut() {
+            let (x, y) = (enemy.x, enemy.y);
+            let (mut dx, mut dy) = (enemy.dx, enemy.dy);
+
+            // Land or edge in my horizontal direction?
+            if x + dx < 0 || x + dx >= BOARD_WIDTH as i16 || self.board[y as usize][(x + dx) as usize] != Field::Land {
+                dx = -dx;
+            }
+
+            // Land or edge in my vertical direction?
+            if y + dy < 0 || y + dy >= BOARD_HEIGHT as i16 || self.board[(y + dy) as usize][x as usize] != Field::Land {
+                dy = -dy;
+            }
+
+            // Land exactly in diagonal?
+            if self.board[(y + dy) as usize][(x + dx) as usize] != Field::Land {
+                dx = -dx;
+                dy = -dy;
+            }
+
+            enemy.dx = dx;
+            enemy.dy = dy;
+            enemy.x = x + dx;
+            enemy.y = y + dy;
+        }
+
+        Ok(())
+    }
+
     fn move_actors(&mut self) -> Result<(), ()> {
         self.move_player()?;
         self.move_sea_enemies()?;
+        self.move_land_enemies()?;
 
         Ok(())
     }
