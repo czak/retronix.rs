@@ -109,6 +109,13 @@ impl PlayState {
                 dy = -dy;
             }
 
+            // Check for collision
+            if x + dx == self.player.x && y + dy == self.player.y ||
+                x == self.player.x && y + dy == self.player.y ||
+                x + dx == self.player.x && y == self.player.y {
+                return Err(());
+            }
+
             enemy.dx = dx;
             enemy.dy = dy;
             enemy.x = x + dx;
@@ -139,10 +146,17 @@ impl PlayState {
                 dy = -dy;
             }
 
-            enemy.dx = dx;
-            enemy.dy = dy;
+            // Check for collision
+            if x + dx == self.player.x && y + dy == self.player.y ||
+                x == self.player.x && y + dy == self.player.y ||
+                x + dx == self.player.x && y == self.player.y {
+                return Err(());
+            }
+
             enemy.x = x + dx;
             enemy.y = y + dy;
+            enemy.dx = dx;
+            enemy.dy = dy;
         }
 
         Ok(())
