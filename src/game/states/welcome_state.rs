@@ -1,5 +1,6 @@
 use game::{State, Event, Renderer};
 
+#[allow(dead_code)]
 pub struct WelcomeState {
 }
 
