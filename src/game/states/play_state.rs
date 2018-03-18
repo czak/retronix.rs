@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use game::{Event, State, Renderer};
 
 // TODO: Pass when constructing the state
@@ -22,7 +23,41 @@ struct Actor {
 enum Field {
     Land,
     Sea,
+    DeepSea,
     Sand,
+}
+
+fn flood_fill(board: &mut Vec<Vec<Field>>, position: (i16, i16)) {
+    let mut q = VecDeque::new();
+    q.push_back(position);
+    while !q.is_empty() {
+        let (x, y) = q.pop_front().unwrap();
+        if board[y as usize][x as usize] == Field::Sea {
+            board[y as usize][x as usize] = Field::DeepSea;
+            q.push_back((x, y - 1));
+            q.push_back((x, y + 1));
+            q.push_back((x - 1, y));
+            q.push_back((x + 1, y));
+        }
+    }
+
+
+}
+
+fn fill(board: &mut Vec<Vec<Field>>, enemies: &Vec<Actor>) {
+    for e in enemies {
+        flood_fill(board, (e.x, e.y));
+    }
+
+    for row in board.iter_mut() {
+        for field in row.iter_mut() {
+            if *field == Field::DeepSea {
+                *field = Field::Sea;
+            } else if *field == Field::Sea || *field == Field::Sand {
+                *field = Field::Land;
+            }
+        }
+    }
 }
 
 impl PlayState {
@@ -76,6 +111,8 @@ impl PlayState {
                             }
                         }
                     }
+
+                    fill(&mut self.board, &self.sea_enemies);
                 } else if let Field::Sand = self.board[y as usize][x as usize] {
                     return Err(());
                 }
@@ -194,6 +231,7 @@ impl State for PlayState {
                     &Field::Land => '█',
                     &Field::Sea => '░',
                     &Field::Sand => '▒',
+                    _ => '?',
                 };
                 renderer.put_cell(
                     x as u16,
