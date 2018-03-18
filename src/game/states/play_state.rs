@@ -2,8 +2,8 @@ use std::collections::VecDeque;
 use game::{Event, State, Renderer};
 
 // TODO: Pass when constructing the state
-const BOARD_WIDTH: usize = 20;
-const BOARD_HEIGHT: usize = 8;
+const BOARD_WIDTH: usize = 32;
+const BOARD_HEIGHT: usize = 12;
 
 pub struct PlayState {
     player: Actor,
@@ -253,6 +253,11 @@ impl State for PlayState {
 
         for e in self.land_enemies.iter() {
             renderer.put_cell(e.x as u16, e.y as u16, 'L');
+        }
+
+        let score = "Score: 0 Xn: 3 Full: 0% Time: 90";
+        for (x, c) in score.chars().enumerate() {
+            renderer.put_cell(x as u16, self.board.len() as u16, c);
         }
     }
 

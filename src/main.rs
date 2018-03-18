@@ -12,8 +12,8 @@ use std::time;
 
 use game::Event;
 
-const WIDTH: usize = 20;
-const HEIGHT: usize = 8;
+const WIDTH: usize = 32;
+const HEIGHT: usize = 13;
 
 #[allow(dead_code)]
 struct FakeScreen {}
@@ -45,7 +45,7 @@ fn main() {
     thread::spawn(move || {
         loop {
             tx.send(Event::Tick).unwrap();
-            thread::sleep(time::Duration::from_millis(200));
+            thread::sleep(time::Duration::from_millis(100));
         }
     });
 
