@@ -109,10 +109,17 @@ impl PlayState {
                 dy = -dy;
             }
 
-            // Check for collision
+            // Check for collision with player
             if x + dx == self.player.x && y + dy == self.player.y ||
                 x == self.player.x && y + dy == self.player.y ||
                 x + dx == self.player.x && y == self.player.y {
+                return Err(());
+            }
+
+            // Check for collision with sand
+            if self.board[(y + dy) as usize][(x + dx) as usize] == Field::Sand ||
+                self.board[(y + dy) as usize][x as usize] == Field::Sand ||
+                self.board[y as usize][(x + dx) as usize] == Field::Sand {
                 return Err(());
             }
 
