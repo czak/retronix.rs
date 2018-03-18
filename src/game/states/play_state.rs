@@ -103,6 +103,14 @@ impl PlayState {
                 dy = -dy;
             }
 
+            // Land exactly in diagonal?
+            if let Field::Land = self.board[(y + dy) as usize][(x + dx) as usize] {
+                dx = -dx;
+                dy = -dy;
+            }
+
+            enemy.dx = dx;
+            enemy.dy = dy;
             enemy.x = x + dx;
             enemy.y = y + dy;
         }
