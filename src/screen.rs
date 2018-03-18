@@ -1,12 +1,13 @@
 extern crate termion;
 
 use termion::raw::IntoRawMode;
+use termion::screen::AlternateScreen;
 use std::io::{self, Write};
 
 use game;
 
 pub fn init(width: usize, height: usize) -> Screen {
-    let mut stdout = io::stdout().into_raw_mode().unwrap();
+    let mut stdout = AlternateScreen::from(io::stdout().into_raw_mode().unwrap());
     write!(stdout, "{}{}",
            termion::clear::All,
            termion::cursor::Hide).unwrap();
@@ -19,7 +20,7 @@ pub fn init(width: usize, height: usize) -> Screen {
 }
 
 pub struct Screen {
-    stdout: termion::raw::RawTerminal<io::Stdout>,
+    stdout: termion::screen::AlternateScreen<termion::raw::RawTerminal<io::Stdout>>,
     buffer: Vec<Vec<char>>,
 }
 
