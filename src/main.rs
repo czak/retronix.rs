@@ -15,6 +15,14 @@ use game::Event;
 const WIDTH: usize = 20;
 const HEIGHT: usize = 8;
 
+#[allow(dead_code)]
+struct FakeScreen {}
+
+impl game::Renderer for FakeScreen {
+    fn put_cell(&mut self, _x: u16, _y: u16, _c: char) {
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
 
@@ -42,6 +50,7 @@ fn main() {
     });
 
     let mut screen = screen::init(WIDTH, HEIGHT);
+    // let mut screen = FakeScreen {};
     let mut game = game::init();
 
     for event in rx {
