@@ -5,3 +5,4 @@ authors = ["Łukasz Adamczak <lukasz@czak.pl>"]
 
 [dependencies]
 termion = "1.5"
+rand = "0.4"
