@@ -1,4 +1,7 @@
+extern crate rand;
+
 use std::collections::VecDeque;
+use self::rand::{thread_rng, Rng};
 use game::{Event, State, Renderer};
 
 // TODO: Pass when constructing the state
@@ -72,6 +75,9 @@ impl PlayState {
             }
         }
 
+        let choices = [-1, 1];
+        let mut rng = thread_rng();
+
         PlayState {
             player: Actor {
                 x: 0, y: 0,
@@ -81,7 +87,12 @@ impl PlayState {
                 Actor { x: 2, y: 2, dx: 1, dy: 1 },
             ],
             land_enemies: vec![
-                Actor { x: BOARD_WIDTH as i16 / 2, y: 0, dx: 1, dy: 1 },
+                Actor {
+                    x: BOARD_WIDTH as i16 / 2,
+                    y: BOARD_HEIGHT as i16 - 2,
+                    dx: *rng.choose(&choices).unwrap(),
+                    dy: *rng.choose(&choices).unwrap(),
+                },
             ],
             board,
         }
