@@ -29,10 +29,10 @@ impl Board {
         Board { fields }
     }
 
-    // pub fn get_field(&self, position: Position) -> Field {
-    //     self.fields[position.y as usize][position.x as usize]
-    // }
-    //
+    pub fn get_field(&self, position: &Position) -> &Field {
+        &self.fields[position.y as usize][position.x as usize]
+    }
+
     // pub fn set_field(&mut self, position: Position, field: Field) {
     //     self.fields[position.y as usize][position.x as usize] = field;
     // }
