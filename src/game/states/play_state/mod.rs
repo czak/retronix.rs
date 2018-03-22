@@ -15,9 +15,21 @@ pub struct PlayState {
     board: Board,
 }
 
-struct Actor {
+pub struct Position {
     x: i16,
     y: i16,
+}
+
+impl Position {
+    fn moved_to(&self, dx: i16, dy: i16) -> Position {
+        let x = self.x + dx;
+        let y = self.y + dy;
+        Position { x, y }
+    }
+}
+
+struct Actor {
+    position: Position,
     dx: i16,
     dy: i16,
 }
@@ -29,25 +41,24 @@ impl PlayState {
         let choices = [-1, 1];
         let mut rng = thread_rng();
 
-        let random_sea_position = board.random_position_of_type(Field::Sea);
-
         PlayState {
             player: Actor {
-                x: 0, y: 0,
+                position: Position { x: 0, y: 0 },
                 dx: 0, dy: 0,
             },
             sea_enemies: vec![
                 Actor {
-                    x: random_sea_position.0,
-                    y: random_sea_position.1,
+                    position: board.random_position_of_type(Field::Sea),
                     dx: *rng.choose(&choices).unwrap(),
                     dy: *rng.choose(&choices).unwrap(),
                 },
             ],
             land_enemies: vec![
                 Actor {
-                    x: BOARD_WIDTH as i16 / 2,
-                    y: BOARD_HEIGHT as i16 - 2,
+                    position: Position {
+                        x: BOARD_WIDTH as i16 / 2,
+                        y: BOARD_HEIGHT as i16 - 2,
+                    },
                     dx: *rng.choose(&choices).unwrap(),
                     dy: *rng.choose(&choices).unwrap(),
                 },
@@ -58,18 +69,17 @@ impl PlayState {
 
     fn move_player(&mut self) -> Result<(), ()> {
         let player = &mut self.player;
-        let x = player.x + player.dx;
-        let y = player.y + player.dy;
+        let pos = player.position.moved_to(player.dx, player.dy);
 
-        if x < 0 || x >= BOARD_WIDTH as i16 ||
-            y < 0 || y >= BOARD_HEIGHT as i16 {
+        if pos.x < 0 || pos.x >= BOARD_WIDTH as i16 ||
+            pos.y < 0 || pos.y >= BOARD_HEIGHT as i16 {
             player.dx = 0;
             player.dy = 0;
         } else {
-            if let Field::Sea = self.board.fields[player.y as usize][player.x as usize] {
-                self.board.fields[player.y as usize][player.x as usize] = Field::Sand;
+            if let Field::Sea = self.board.fields[player.position.y as usize][player.position.x as usize] {
+                self.board.fields[player.position.y as usize][player.position.x as usize] = Field::Sand;
 
-                if let Field::Land = self.board.fields[y as usize][x as usize] {
+                if let Field::Land = self.board.fields[pos.y as usize][pos.x as usize] {
                     player.dx = 0;
                     player.dy = 0;
 
@@ -81,14 +91,13 @@ impl PlayState {
                         }
                     }
 
-                    self.board.fill(&self.sea_enemies.iter().map(|e| (e.x, e.y)).collect());
-                } else if let Field::Sand = self.board.fields[y as usize][x as usize] {
+                    self.board.fill(&self.sea_enemies.iter().map(|e| (e.position.x, e.position.y)).collect());
+                } else if let Field::Sand = self.board.fields[pos.y as usize][pos.x as usize] {
                     return Err(());
                 }
             }
 
-            player.x = x;
-            player.y = y;
+            player.position = pos;
         }
 
         Ok(())
@@ -96,7 +105,7 @@ impl PlayState {
 
     fn move_sea_enemies(&mut self) -> Result<(), ()> {
         for enemy in self.sea_enemies.iter_mut() {
-            let (x, y) = (enemy.x, enemy.y);
+            let (x, y) = (enemy.position.x, enemy.position.y);
             let (mut dx, mut dy) = (enemy.dx, enemy.dy);
 
             // Land in my horizontal direction?
@@ -116,9 +125,9 @@ impl PlayState {
             }
 
             // Check for collision with player
-            if x + dx == self.player.x && y + dy == self.player.y ||
-                x == self.player.x && y + dy == self.player.y ||
-                x + dx == self.player.x && y == self.player.y {
+            if x + dx == self.player.position.x && y + dy == self.player.position.y ||
+                x == self.player.position.x && y + dy == self.player.position.y ||
+                x + dx == self.player.position.x && y == self.player.position.y {
                 return Err(());
             }
 
@@ -131,8 +140,8 @@ impl PlayState {
 
             enemy.dx = dx;
             enemy.dy = dy;
-            enemy.x = x + dx;
-            enemy.y = y + dy;
+            enemy.position.x = x + dx;
+            enemy.position.y = y + dy;
         }
 
         Ok(())
@@ -140,7 +149,7 @@ impl PlayState {
 
     fn move_land_enemies(&mut self) -> Result<(), ()> {
         for enemy in self.land_enemies.iter_mut() {
-            let (x, y) = (enemy.x, enemy.y);
+            let (x, y) = (enemy.position.x, enemy.position.y);
             let (mut dx, mut dy) = (enemy.dx, enemy.dy);
 
             // Land or edge in my horizontal direction?
@@ -160,14 +169,14 @@ impl PlayState {
             }
 
             // Check for collision
-            if x + dx == self.player.x && y + dy == self.player.y ||
-                x == self.player.x && y + dy == self.player.y ||
-                x + dx == self.player.x && y == self.player.y {
+            if x + dx == self.player.position.x && y + dy == self.player.position.y ||
+                x == self.player.position.x && y + dy == self.player.position.y ||
+                x + dx == self.player.position.x && y == self.player.position.y {
                 return Err(());
             }
 
-            enemy.x = x + dx;
-            enemy.y = y + dy;
+            enemy.position.x = x + dx;
+            enemy.position.y = y + dy;
             enemy.dx = dx;
             enemy.dy = dy;
         }
@@ -211,17 +220,17 @@ impl State for PlayState {
         }
 
         renderer.put_cell(
-            self.player.x as u16,
-            self.player.y as u16,
+            self.player.position.x as u16,
+            self.player.position.y as u16,
             'x'
         );
 
         for e in self.sea_enemies.iter() {
-            renderer.put_cell(e.x as u16, e.y as u16, 'S');
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'S');
         }
 
         for e in self.land_enemies.iter() {
-            renderer.put_cell(e.x as u16, e.y as u16, 'L');
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L');
         }
 
         let score = "Score: 0 Xn: 3 Full: 0% Time: 90";

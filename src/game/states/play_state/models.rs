@@ -1,5 +1,6 @@
 use rand::{thread_rng, Rng};
 use std::collections::VecDeque;
+use super::Position;
 
 #[derive(Clone, PartialEq)]
 pub enum Field {
@@ -28,16 +29,24 @@ impl Board {
         Board { fields }
     }
 
-    fn random_position(&self) -> (i16, i16) {
+    // pub fn get_field(&self, position: Position) -> Field {
+    //     self.fields[position.y as usize][position.x as usize]
+    // }
+    //
+    // pub fn set_field(&mut self, position: Position, field: Field) {
+    //     self.fields[position.y as usize][position.x as usize] = field;
+    // }
+    //
+    fn random_position(&self) -> Position {
         let mut rng = thread_rng();
         let x = rng.gen_range(0, self.fields[0].len() as i16);
         let y = rng.gen_range(0, self.fields.len() as i16);
-        (x, y)
+        Position { x, y }
     }
 
-    pub fn random_position_of_type(&self, field_type: Field) -> (i16, i16) {
+    pub fn random_position_of_type(&self, field_type: Field) -> Position {
         let mut pos = self.random_position();
-        while self.fields[pos.1 as usize][pos.0 as usize] != field_type {
+        while self.fields[pos.y as usize][pos.x as usize] != field_type {
             pos = self.random_position();
         }
         pos
