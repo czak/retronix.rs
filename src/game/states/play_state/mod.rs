@@ -1,8 +1,8 @@
-extern crate rand;
+mod models;
 
-use std::collections::VecDeque;
-use self::rand::{thread_rng, Rng};
+use rand::{thread_rng, Rng};
 use game::{Event, State, Renderer};
+use self::models::{Board, Field};
 
 // TODO: Pass when constructing the state
 const BOARD_WIDTH: usize = 32;
@@ -12,7 +12,7 @@ pub struct PlayState {
     player: Actor,
     sea_enemies: Vec<Actor>,
     land_enemies: Vec<Actor>,
-    board: Vec<Vec<Field>>,
+    board: Board,
 }
 
 struct Actor {
@@ -22,78 +22,14 @@ struct Actor {
     dy: i16,
 }
 
-#[derive(Clone,PartialEq)]
-enum Field {
-    Land,
-    Sea,
-    DeepSea,
-    Sand,
-}
-
-fn flood_fill(board: &mut Vec<Vec<Field>>, position: (i16, i16)) {
-    let mut q = VecDeque::new();
-    q.push_back(position);
-    while !q.is_empty() {
-        let (x, y) = q.pop_front().unwrap();
-        if board[y as usize][x as usize] == Field::Sea {
-            board[y as usize][x as usize] = Field::DeepSea;
-            q.push_back((x, y - 1));
-            q.push_back((x, y + 1));
-            q.push_back((x - 1, y));
-            q.push_back((x + 1, y));
-        }
-    }
-
-
-}
-
-fn fill(board: &mut Vec<Vec<Field>>, enemies: &Vec<Actor>) {
-    for e in enemies {
-        flood_fill(board, (e.x, e.y));
-    }
-
-    for row in board.iter_mut() {
-        for field in row.iter_mut() {
-            if *field == Field::DeepSea {
-                *field = Field::Sea;
-            } else if *field == Field::Sea || *field == Field::Sand {
-                *field = Field::Land;
-            }
-        }
-    }
-}
-
-fn random_position(board: &Vec<Vec<Field>>) -> (i16, i16) {
-    let mut rng = thread_rng();
-    let x = rng.gen_range(0, board[0].len() as i16);
-    let y = rng.gen_range(0, board.len() as i16);
-    (x, y)
-}
-
-fn random_position_of_type(board: &Vec<Vec<Field>>, field_type: Field) -> (i16, i16) {
-    let mut pos = random_position(board);
-    while board[pos.1 as usize][pos.0 as usize] != field_type {
-        pos = random_position(board);
-    }
-    pos
-}
-
 impl PlayState {
     pub fn new() -> PlayState {
-        let mut board = vec![vec![Field::Sea; BOARD_WIDTH]; BOARD_HEIGHT];
-
-        for (y, row) in board.iter_mut().enumerate() {
-            for (x, field) in row.iter_mut().enumerate() {
-                if x < 2 || x >= BOARD_WIDTH - 2 || y < 2 || y >= BOARD_HEIGHT -2 {
-                    *field = Field::Land;
-                }
-            }
-        }
+        let board = Board::new(BOARD_WIDTH, BOARD_HEIGHT);
 
         let choices = [-1, 1];
         let mut rng = thread_rng();
 
-        let random_sea_position = random_position_of_type(&board, Field::Sea);
+        let random_sea_position = board.random_position_of_type(Field::Sea);
 
         PlayState {
             player: Actor {
@@ -130,14 +66,14 @@ impl PlayState {
             player.dx = 0;
             player.dy = 0;
         } else {
-            if let Field::Sea = self.board[player.y as usize][player.x as usize] {
-                self.board[player.y as usize][player.x as usize] = Field::Sand;
+            if let Field::Sea = self.board.fields[player.y as usize][player.x as usize] {
+                self.board.fields[player.y as usize][player.x as usize] = Field::Sand;
 
-                if let Field::Land = self.board[y as usize][x as usize] {
+                if let Field::Land = self.board.fields[y as usize][x as usize] {
                     player.dx = 0;
                     player.dy = 0;
 
-                    for row in self.board.iter_mut() {
+                    for row in self.board.fields.iter_mut() {
                         for field in row.iter_mut() {
                             if let &mut Field::Sand = field {
                                 *field = Field::Land;
@@ -145,8 +81,8 @@ impl PlayState {
                         }
                     }
 
-                    fill(&mut self.board, &self.sea_enemies);
-                } else if let Field::Sand = self.board[y as usize][x as usize] {
+                    self.board.fill(&self.sea_enemies.iter().map(|e| (e.x, e.y)).collect());
+                } else if let Field::Sand = self.board.fields[y as usize][x as usize] {
                     return Err(());
                 }
             }
@@ -164,17 +100,17 @@ impl PlayState {
             let (mut dx, mut dy) = (enemy.dx, enemy.dy);
 
             // Land in my horizontal direction?
-            if let Field::Land = self.board[y as usize][(x + dx) as usize] {
+            if let Field::Land = self.board.fields[y as usize][(x + dx) as usize] {
                 dx = -dx;
             }
 
             // Land in my vertical direction?
-            if let Field::Land = self.board[(y + dy) as usize][x as usize] {
+            if let Field::Land = self.board.fields[(y + dy) as usize][x as usize] {
                 dy = -dy;
             }
 
             // Land exactly in diagonal?
-            if let Field::Land = self.board[(y + dy) as usize][(x + dx) as usize] {
+            if let Field::Land = self.board.fields[(y + dy) as usize][(x + dx) as usize] {
                 dx = -dx;
                 dy = -dy;
             }
@@ -187,9 +123,9 @@ impl PlayState {
             }
 
             // Check for collision with sand
-            if self.board[(y + dy) as usize][(x + dx) as usize] == Field::Sand ||
-                self.board[(y + dy) as usize][x as usize] == Field::Sand ||
-                self.board[y as usize][(x + dx) as usize] == Field::Sand {
+            if self.board.fields[(y + dy) as usize][(x + dx) as usize] == Field::Sand ||
+                self.board.fields[(y + dy) as usize][x as usize] == Field::Sand ||
+                self.board.fields[y as usize][(x + dx) as usize] == Field::Sand {
                 return Err(());
             }
 
@@ -208,17 +144,17 @@ impl PlayState {
             let (mut dx, mut dy) = (enemy.dx, enemy.dy);
 
             // Land or edge in my horizontal direction?
-            if x + dx < 0 || x + dx >= BOARD_WIDTH as i16 || self.board[y as usize][(x + dx) as usize] != Field::Land {
+            if x + dx < 0 || x + dx >= BOARD_WIDTH as i16 || self.board.fields[y as usize][(x + dx) as usize] != Field::Land {
                 dx = -dx;
             }
 
             // Land or edge in my vertical direction?
-            if y + dy < 0 || y + dy >= BOARD_HEIGHT as i16 || self.board[(y + dy) as usize][x as usize] != Field::Land {
+            if y + dy < 0 || y + dy >= BOARD_HEIGHT as i16 || self.board.fields[(y + dy) as usize][x as usize] != Field::Land {
                 dy = -dy;
             }
 
             // Land exactly in diagonal?
-            if self.board[(y + dy) as usize][(x + dx) as usize] != Field::Land {
+            if self.board.fields[(y + dy) as usize][(x + dx) as usize] != Field::Land {
                 dx = -dx;
                 dy = -dy;
             }
@@ -258,7 +194,7 @@ impl State for PlayState {
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
-        for (y, row) in self.board.iter().enumerate() {
+        for (y, row) in self.board.fields.iter().enumerate() {
             for (x, field) in row.iter().enumerate() {
                 let c = match field {
                     &Field::Land => '█',
@@ -290,7 +226,7 @@ impl State for PlayState {
 
         let score = "Score: 0 Xn: 3 Full: 0% Time: 90";
         for (x, c) in score.chars().enumerate() {
-            renderer.put_cell(x as u16, self.board.len() as u16, c);
+            renderer.put_cell(x as u16, self.board.fields.len() as u16, c);
         }
     }
 

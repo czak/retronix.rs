@@ -1,4 +1,5 @@
 extern crate termion;
+extern crate rand;
 
 mod game;
 mod screen;
