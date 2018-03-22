@@ -63,6 +63,21 @@ fn fill(board: &mut Vec<Vec<Field>>, enemies: &Vec<Actor>) {
     }
 }
 
+fn random_position(board: &Vec<Vec<Field>>) -> (i16, i16) {
+    let mut rng = thread_rng();
+    let x = rng.gen_range(0, board[0].len() as i16);
+    let y = rng.gen_range(0, board.len() as i16);
+    (x, y)
+}
+
+fn random_position_of_type(board: &Vec<Vec<Field>>, field_type: Field) -> (i16, i16) {
+    let mut pos = random_position(board);
+    while board[pos.1 as usize][pos.0 as usize] != field_type {
+        pos = random_position(board);
+    }
+    pos
+}
+
 impl PlayState {
     pub fn new() -> PlayState {
         let mut board = vec![vec![Field::Sea; BOARD_WIDTH]; BOARD_HEIGHT];
@@ -78,13 +93,20 @@ impl PlayState {
         let choices = [-1, 1];
         let mut rng = thread_rng();
 
+        let random_sea_position = random_position_of_type(&board, Field::Sea);
+
         PlayState {
             player: Actor {
                 x: 0, y: 0,
                 dx: 0, dy: 0,
             },
             sea_enemies: vec![
-                Actor { x: 2, y: 2, dx: 1, dy: 1 },
+                Actor {
+                    x: random_sea_position.0,
+                    y: random_sea_position.1,
+                    dx: *rng.choose(&choices).unwrap(),
+                    dy: *rng.choose(&choices).unwrap(),
+                },
             ],
             land_enemies: vec![
                 Actor {
