@@ -8,13 +8,6 @@ use self::models::{Board, Field};
 const BOARD_WIDTH: usize = 32;
 const BOARD_HEIGHT: usize = 12;
 
-pub struct PlayState {
-    player: Actor,
-    sea_enemies: Vec<Actor>,
-    land_enemies: Vec<Actor>,
-    board: Board,
-}
-
 #[derive(Clone, PartialEq)]
 pub struct Position {
     x: i16,
@@ -23,7 +16,7 @@ pub struct Position {
 
 impl Position {
     // TODO: Implement as addition with `+`
-    fn moved_to(&self, direction: Direction) -> Position {
+    fn moved_to(&self, direction: &Direction) -> Position {
         let deltas = direction.deltas();
         let x = self.x + deltas.0;
         let y = self.y + deltas.1;
@@ -122,6 +115,13 @@ struct Actor {
     direction: Direction,
 }
 
+pub struct PlayState {
+    player: Actor,
+    sea_enemies: Vec<Actor>,
+    land_enemies: Vec<Actor>,
+    board: Board,
+}
+
 impl PlayState {
     pub fn new() -> PlayState {
         let board = Board::new(BOARD_WIDTH, BOARD_HEIGHT);
@@ -152,7 +152,7 @@ impl PlayState {
 
     fn move_player(&mut self) -> Result<(), ()> {
         let player = &mut self.player;
-        let pos = player.position.moved_to(player.direction);
+        let pos = player.position.moved_to(&player.direction);
 
         if pos.x < 0 || pos.x >= BOARD_WIDTH as i16 ||
             pos.y < 0 || pos.y >= BOARD_HEIGHT as i16 {
@@ -164,6 +164,7 @@ impl PlayState {
                 if self.board[&pos] == Field::Land {
                     player.direction = Direction::None;
 
+                    // TODO: This can be part of 'fill'
                     for row in self.board.rows_mut() {
                         for field in row.iter_mut() {
                             if *field == Field::Sand {
@@ -186,40 +187,40 @@ impl PlayState {
 
     fn move_sea_enemies(&mut self) -> Result<(), ()> {
         for enemy in self.sea_enemies.iter_mut() {
-            // let position = &enemy.position;
-            let mut direction = enemy.direction;
+            let position = enemy.position.clone();
+            let mut direction = enemy.direction.clone();
 
             // Land in my horizontal direction?
-            if self.board[&enemy.position.moved_to(direction.horizontal())] == Field::Land {
+            if self.board[&position.moved_to(&direction.horizontal())] == Field::Land {
                 direction = direction.flipped_x();
             }
 
             // Land in my vertical direction?
-            if self.board[&enemy.position.moved_to(direction.vertical())] == Field::Land {
+            if self.board[&position.moved_to(&direction.vertical())] == Field::Land {
                 direction = direction.flipped_y();
             }
 
             // Land exactly in diagonal?
             // if let Field::Land = self.board.fields[(y + dy) as usize][(x + dx) as usize] {
-            if self.board[&enemy.position.moved_to(direction)] == Field::Land {
+            if self.board[&position.moved_to(&direction)] == Field::Land {
                 direction = direction.flipped_x().flipped_y();
             }
 
             // Check for collision with player
-            if enemy.position.moved_to(direction) == self.player.position ||
-                enemy.position.moved_to(direction.horizontal()) == self.player.position ||
-                enemy.position.moved_to(direction.vertical()) == self.player.position {
+            if position.moved_to(&direction) == self.player.position ||
+                position.moved_to(&direction.horizontal()) == self.player.position ||
+                position.moved_to(&direction.vertical()) == self.player.position {
                 return Err(());
             }
 
             // Check for collision with sand
-            if self.board[&enemy.position.moved_to(direction)] == Field::Sand ||
-                self.board[&enemy.position.moved_to(direction.horizontal())] == Field::Sand ||
-                self.board[&enemy.position.moved_to(direction.vertical())] == Field::Sand {
+            if self.board[&position.moved_to(&direction)] == Field::Sand ||
+                self.board[&position.moved_to(&direction.horizontal())] == Field::Sand ||
+                self.board[&position.moved_to(&direction.vertical())] == Field::Sand {
                 return Err(());
             }
 
-            enemy.position = enemy.position.moved_to(direction);
+            enemy.position = position.moved_to(&direction);
             enemy.direction = direction;
         }
 
