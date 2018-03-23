@@ -15,99 +15,82 @@ pub struct Position {
 }
 
 impl Position {
-    // TODO: Implement as addition with `+`
     fn moved_to(&self, direction: &Direction) -> Position {
-        let deltas = direction.deltas();
-        let x = self.x + deltas.0;
-        let y = self.y + deltas.1;
-        Position { x, y }
+        Position {
+            x: self.x + direction.dx,
+            y: self.y + direction.dy,
+        }
     }
 }
 
-#[derive(Copy, Clone)]
-pub enum Direction {
-    North,
-    South,
-    East,
-    West,
-    NorthEast,
-    SouthEast,
-    NorthWest,
-    SouthWest,
-    None,
+#[derive(Clone)]
+pub struct Direction {
+    dx: i16,
+    dy: i16,
 }
 
 impl Direction {
-    fn deltas(self) -> (i16, i16) {
-        match self {
-            Direction::North     => ( 0, -1),
-            Direction::South     => ( 0,  1),
-            Direction::East      => ( 1,  0),
-            Direction::West      => (-1,  0),
-            Direction::NorthEast => ( 1, -1),
-            Direction::SouthEast => ( 1,  1),
-            Direction::NorthWest => (-1, -1),
-            Direction::SouthWest => (-1,  1),
-            Direction::None      => ( 0,  0),
+    const NORTH:     Direction = Direction { dx: 0, dy: -1 };
+    const SOUTH:     Direction = Direction { dx: 0, dy: 1 };
+    const EAST:      Direction = Direction { dx: 1, dy: 0 };
+    const WEST:      Direction = Direction { dx: -1, dy: 0 };
+    const NORTHEAST: Direction = Direction { dx: 1, dy: -1 };
+    const SOUTHEAST: Direction = Direction { dx: 1, dy: 1 };
+    const NORTHWEST: Direction = Direction { dx: -1, dy: -1 };
+    const SOUTHWEST: Direction = Direction { dx: -1, dy: 1 };
+    const NONE:      Direction = Direction { dx: 0, dy: 0 };
+
+    fn horizontal(&self) -> Direction {
+        Direction {
+            dx: self.dx,
+            dy: 0,
         }
     }
 
-    fn flipped_x(self) -> Self {
-        match self {
-            Direction::North     => Direction::North,
-            Direction::South     => Direction::South,
-            Direction::East      => Direction::West,
-            Direction::West      => Direction::East,
-            Direction::NorthEast => Direction::NorthWest,
-            Direction::SouthEast => Direction::SouthWest,
-            Direction::NorthWest => Direction::NorthEast,
-            Direction::SouthWest => Direction::SouthEast,
-            Direction::None      => Direction::None,
+    fn vertical(&self) -> Direction {
+        Direction {
+            dx: 0,
+            dy: self.dy,
         }
     }
 
-    fn flipped_y(self) -> Self {
-        match self {
-            Direction::North     => Direction::South,
-            Direction::South     => Direction::North,
-            Direction::East      => Direction::East,
-            Direction::West      => Direction::West,
-            Direction::NorthEast => Direction::SouthEast,
-            Direction::SouthEast => Direction::NorthEast,
-            Direction::NorthWest => Direction::SouthWest,
-            Direction::SouthWest => Direction::NorthWest,
-            Direction::None      => Direction::None,
+    fn flipped_x(&self) -> Direction {
+        Direction {
+            dx: -self.dx,
+            dy: self.dy,
         }
     }
 
-    fn horizontal(self) -> Self {
-        match self {
-            Direction::NorthEast => Direction::East,
-            Direction::SouthEast => Direction::East,
-            Direction::NorthWest => Direction::West,
-            Direction::SouthWest => Direction::West,
-            _                    => Direction::None,
-        }
-    }
-
-    fn vertical(self) -> Self {
-        match self {
-            Direction::NorthEast => Direction::North,
-            Direction::SouthEast => Direction::South,
-            Direction::NorthWest => Direction::North,
-            Direction::SouthWest => Direction::South,
-            _                    => Direction::None,
+    fn flipped_y(&self) -> Direction {
+        Direction {
+            dx: self.dx,
+            dy: -self.dy,
         }
     }
 }
 
+// #[derive(Copy, Clone)]
+// pub enum Direction {
+//     NORTH,
+//     SOUTH,
+//     EAST,
+//     WEST,
+//     NORTHEAST,
+//     SOUTHEAST,
+//     NORTHWEST,
+//     SOUTHWEST,
+//     NONE,
+// }
+
+
 fn random_diagonal() -> Direction {
-    *thread_rng().choose(&[
-        Direction::NorthEast,
-        Direction::SouthEast,
-        Direction::NorthWest,
-        Direction::SouthWest,
-    ]).unwrap()
+    static DIAGONALS: [Direction; 4] = [
+        Direction::NORTHEAST,
+        Direction::NORTHWEST,
+        Direction::SOUTHEAST,
+        Direction::SOUTHWEST,
+    ];
+    thread_rng().choose(&DIAGONALS).unwrap().clone()
 }
 
 struct Actor {
@@ -129,7 +112,7 @@ impl PlayState {
         PlayState {
             player: Actor {
                 position: Position { x: 0, y: 0 },
-                direction: Direction::None,
+                direction: Direction::NONE,
             },
             sea_enemies: vec![
                 Actor {
@@ -155,13 +138,13 @@ impl PlayState {
         let pos = player.position.moved_to(&player.direction);
 
         if !self.board.within_bounds(&pos) {
-            player.direction = Direction::None;
+            player.direction = Direction::NONE;
         } else {
             if self.board[&player.position] == Field::Sea {
                 self.board[&player.position] = Field::Sand;
 
                 if self.board[&pos] == Field::Land {
-                    player.direction = Direction::None;
+                    player.direction = Direction::NONE;
 
                     // TODO: This can be part of 'fill'
                     for row in self.board.rows_mut() {
@@ -323,16 +306,16 @@ impl State for PlayState {
     fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
         match event {
             Event::Up => {
-                self.player.direction = Direction::North;
+                self.player.direction = Direction::NORTH;
             },
             Event::Down => {
-                self.player.direction = Direction::South;
+                self.player.direction = Direction::SOUTH;
             },
             Event::Left => {
-                self.player.direction = Direction::West;
+                self.player.direction = Direction::WEST;
             },
             Event::Right => {
-                self.player.direction = Direction::East;
+                self.player.direction = Direction::EAST;
             },
             _ => {},
         }
