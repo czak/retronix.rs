@@ -188,43 +188,6 @@ impl PlayState {
         }
     }
 
-    // fn move_land_enemies(&mut self) -> Result<(), ()> {
-    //     for enemy in self.land_enemies.iter_mut() {
-    //         let (x, y) = (enemy.position.x, enemy.position.y);
-    //         let (mut dx, mut dy) = (enemy.dx, enemy.dy);
-    //
-    //         // Land or edge in my horizontal direction?
-    //         if x + dx < 0 || x + dx >= BOARD_WIDTH as i16 || self.board.fields[y as usize][(x + dx) as usize] != Field::Land {
-    //             dx = -dx;
-    //         }
-    //
-    //         // Land or edge in my vertical direction?
-    //         if y + dy < 0 || y + dy >= BOARD_HEIGHT as i16 || self.board.fields[(y + dy) as usize][x as usize] != Field::Land {
-    //             dy = -dy;
-    //         }
-    //
-    //         // Land exactly in diagonal?
-    //         if self.board.fields[(y + dy) as usize][(x + dx) as usize] != Field::Land {
-    //             dx = -dx;
-    //             dy = -dy;
-    //         }
-    //
-    //         // Check for collision
-    //         if x + dx == self.player.position.x && y + dy == self.player.position.y ||
-    //             x == self.player.position.x && y + dy == self.player.position.y ||
-    //             x + dx == self.player.position.x && y == self.player.position.y {
-    //             return Err(());
-    //         }
-    //
-    //         enemy.position.x = x + dx;
-    //         enemy.position.y = y + dy;
-    //         enemy.dx = dx;
-    //         enemy.dy = dy;
-    //     }
-    //
-    //     Ok(())
-    // }
-
     fn find_collision(&self) -> bool {
         if self.board[&self.player.position] == Field::Sand {
             return true;
