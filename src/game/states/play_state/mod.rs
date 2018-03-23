@@ -69,20 +69,6 @@ impl Direction {
     }
 }
 
-// #[derive(Copy, Clone)]
-// pub enum Direction {
-//     NORTH,
-//     SOUTH,
-//     EAST,
-//     WEST,
-//     NORTHEAST,
-//     SOUTHEAST,
-//     NORTHWEST,
-//     SOUTHWEST,
-//     NONE,
-// }
-
-
 fn random_diagonal() -> Direction {
     static DIAGONALS: [Direction; 4] = [
         Direction::NORTHEAST,
@@ -133,7 +119,7 @@ impl PlayState {
         }
     }
 
-    fn move_player(&mut self) -> Result<(), ()> {
+    fn move_player(&mut self) {
         let player = &mut self.player;
         let pos = player.position.moved_to(&player.direction);
 
@@ -158,57 +144,32 @@ impl PlayState {
                     let enemy_positions: Vec<&Position> =
                         self.sea_enemies.iter().map(|e| &e.position).collect();
                     self.board.fill(&enemy_positions);
-                } else if self.board[&pos] == Field::Sand {
-                    return Err(());
                 }
             }
 
             player.position = pos;
         }
-
-        Ok(())
     }
 
-    fn move_sea_enemies(&mut self) -> Result<(), ()> {
+    fn move_sea_enemies(&mut self) {
         for enemy in self.sea_enemies.iter_mut() {
-            let position = enemy.position.clone();
-            let mut direction = enemy.direction.clone();
-
             // Land in my horizontal direction?
-            if self.board[&position.moved_to(&direction.horizontal())] == Field::Land {
-                direction = direction.flipped_x();
+            if self.board[&enemy.position.moved_to(&enemy.direction.horizontal())] == Field::Land {
+                enemy.direction = enemy.direction.flipped_x();
             }
 
             // Land in my vertical direction?
-            if self.board[&position.moved_to(&direction.vertical())] == Field::Land {
-                direction = direction.flipped_y();
+            if self.board[&enemy.position.moved_to(&enemy.direction.vertical())] == Field::Land {
+                enemy.direction = enemy.direction.flipped_y();
             }
 
             // Land exactly in diagonal?
-            // if let Field::Land = self.board.fields[(y + dy) as usize][(x + dx) as usize] {
-            if self.board[&position.moved_to(&direction)] == Field::Land {
-                direction = direction.flipped_x().flipped_y();
+            if self.board[&enemy.position.moved_to(&enemy.direction)] == Field::Land {
+                enemy.direction = enemy.direction.flipped_x().flipped_y();
             }
 
-            // Check for collision with player
-            if position.moved_to(&direction) == self.player.position ||
-                position.moved_to(&direction.horizontal()) == self.player.position ||
-                position.moved_to(&direction.vertical()) == self.player.position {
-                return Err(());
-            }
-
-            // Check for collision with sand
-            if self.board[&position.moved_to(&direction)] == Field::Sand ||
-                self.board[&position.moved_to(&direction.horizontal())] == Field::Sand ||
-                self.board[&position.moved_to(&direction.vertical())] == Field::Sand {
-                return Err(());
-            }
-
-            enemy.position = position.moved_to(&direction);
-            enemy.direction = direction;
+            enemy.position = enemy.position.moved_to(&enemy.direction);
         }
-
-        Ok(())
     }
 
     // fn move_land_enemies(&mut self) -> Result<(), ()> {
@@ -248,21 +209,41 @@ impl PlayState {
     //     Ok(())
     // }
 
-    fn move_actors(&mut self) -> Result<(), ()> {
-        self.move_player()?;
-        self.move_sea_enemies()?;
-        // self.move_land_enemies()?;
+    fn find_collision(&self) -> bool {
+        if self.board[&self.player.position] == Field::Sand {
+            return true;
+        }
 
-        Ok(())
+        for enemy in &self.sea_enemies {
+            if enemy.position == self.player.position {
+                return true;
+            }
+
+            if self.board[&enemy.position] == Field::Sand {
+                return true;
+            }
+        }
+
+        for enemy in &self.land_enemies {
+            if enemy.position == self.player.position {
+                return true;
+            }
+        }
+
+        false
     }
 }
 
 impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
-        if self.move_actors().is_ok() {
-            None
-        } else {
+        self.move_player();
+        self.move_sea_enemies();
+        // self.move_land_enemies();
+
+        if self.find_collision() {
             Some(Box::new(super::GameOverState {}))
+        } else {
+            None
         }
     }
 
