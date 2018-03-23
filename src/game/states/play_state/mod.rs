@@ -225,6 +225,15 @@ impl PlayState {
             direction: Direction { dx: 0, dy: 0 },
         };
 
+        self.land_enemies = vec![
+            Actor {
+                position: Position {
+                    x: BOARD_WIDTH as i16 / 2,
+                    y: BOARD_HEIGHT as i16 - 2,
+                },
+                direction: random_diagonal(),
+            },
+        ];
     }
 }
 
