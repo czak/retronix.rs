@@ -11,7 +11,7 @@ pub enum Field {
 }
 
 pub struct Board {
-    pub fields: Vec<Vec<Field>>,
+    fields: Vec<Vec<Field>>,
 }
 
 impl Board {
@@ -33,10 +33,18 @@ impl Board {
         &self.fields[position.y as usize][position.x as usize]
     }
 
-    // pub fn set_field(&mut self, position: Position, field: Field) {
-    //     self.fields[position.y as usize][position.x as usize] = field;
-    // }
-    //
+    pub fn set_field(&mut self, position: &Position, field: Field) {
+        self.fields[position.y as usize][position.x as usize] = field;
+    }
+
+    pub fn rows(&self) -> ::std::slice::Iter<Vec<Field>> {
+        self.fields.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> ::std::slice::IterMut<Vec<Field>> {
+        self.fields.iter_mut()
+    }
+
     fn random_position(&self) -> Position {
         let mut rng = thread_rng();
         let x = rng.gen_range(0, self.fields[0].len() as i16);

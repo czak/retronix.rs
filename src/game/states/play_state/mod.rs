@@ -158,13 +158,13 @@ impl PlayState {
             pos.y < 0 || pos.y >= BOARD_HEIGHT as i16 {
             player.direction = Direction::None;
         } else {
-            if let Field::Sea = self.board.fields[player.position.y as usize][player.position.x as usize] {
-                self.board.fields[player.position.y as usize][player.position.x as usize] = Field::Sand;
+            if *self.board.get_field(&player.position) == Field::Sea {
+                self.board.set_field(&player.position, Field::Sand);
 
-                if let Field::Land = self.board.fields[pos.y as usize][pos.x as usize] {
+                if *self.board.get_field(&pos) == Field::Land {
                     player.direction = Direction::None;
 
-                    for row in self.board.fields.iter_mut() {
+                    for row in self.board.iter_mut() {
                         for field in row.iter_mut() {
                             if let &mut Field::Sand = field {
                                 *field = Field::Land;
@@ -173,7 +173,7 @@ impl PlayState {
                     }
 
                     self.board.fill(&self.sea_enemies.iter().map(|e| (e.position.x, e.position.y)).collect());
-                } else if let Field::Sand = self.board.fields[pos.y as usize][pos.x as usize] {
+                } else if *self.board.get_field(&pos) == Field::Sand {
                     return Err(());
                 }
             }
@@ -282,7 +282,7 @@ impl State for PlayState {
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
-        for (y, row) in self.board.fields.iter().enumerate() {
+        for (y, row) in self.board.rows().enumerate() {
             for (x, field) in row.iter().enumerate() {
                 let c = match field {
                     &Field::Land => '█',
@@ -314,7 +314,7 @@ impl State for PlayState {
 
         let score = "Score: 0 Xn: 3 Full: 0% Time: 90";
         for (x, c) in score.chars().enumerate() {
-            renderer.put_cell(x as u16, self.board.fields.len() as u16, c);
+            renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
         }
     }
 
