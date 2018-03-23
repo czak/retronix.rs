@@ -158,22 +158,22 @@ impl PlayState {
             pos.y < 0 || pos.y >= BOARD_HEIGHT as i16 {
             player.direction = Direction::None;
         } else {
-            if *self.board.get_field(&player.position) == Field::Sea {
-                self.board.set_field(&player.position, Field::Sand);
+            if self.board[&player.position] == Field::Sea {
+                self.board[&player.position] = Field::Sand;
 
-                if *self.board.get_field(&pos) == Field::Land {
+                if self.board[&pos] == Field::Land {
                     player.direction = Direction::None;
 
                     for row in self.board.rows_mut() {
                         for field in row.iter_mut() {
-                            if let &mut Field::Sand = field {
+                            if *field == Field::Sand {
                                 *field = Field::Land;
                             }
                         }
                     }
 
                     self.board.fill(&self.sea_enemies.iter().map(|e| (e.position.x, e.position.y)).collect());
-                } else if *self.board.get_field(&pos) == Field::Sand {
+                } else if self.board[&pos] == Field::Sand {
                     return Err(());
                 }
             }
@@ -190,18 +190,18 @@ impl PlayState {
             let mut direction = enemy.direction;
 
             // Land in my horizontal direction?
-            if *self.board.get_field(&enemy.position.moved_to(direction.horizontal())) == Field::Land {
+            if self.board[&enemy.position.moved_to(direction.horizontal())] == Field::Land {
                 direction = direction.flipped_x();
             }
 
             // Land in my vertical direction?
-            if *self.board.get_field(&enemy.position.moved_to(direction.vertical())) == Field::Land {
+            if self.board[&enemy.position.moved_to(direction.vertical())] == Field::Land {
                 direction = direction.flipped_y();
             }
 
             // Land exactly in diagonal?
             // if let Field::Land = self.board.fields[(y + dy) as usize][(x + dx) as usize] {
-            if *self.board.get_field(&enemy.position.moved_to(direction)) == Field::Land {
+            if self.board[&enemy.position.moved_to(direction)] == Field::Land {
                 direction = direction.flipped_x().flipped_y();
             }
 
@@ -213,9 +213,9 @@ impl PlayState {
             }
 
             // Check for collision with sand
-            if *self.board.get_field(&enemy.position.moved_to(direction)) == Field::Sand ||
-                *self.board.get_field(&enemy.position.moved_to(direction.horizontal())) == Field::Sand ||
-                *self.board.get_field(&enemy.position.moved_to(direction.vertical())) == Field::Sand {
+            if self.board[&enemy.position.moved_to(direction)] == Field::Sand ||
+                self.board[&enemy.position.moved_to(direction.horizontal())] == Field::Sand ||
+                self.board[&enemy.position.moved_to(direction.vertical())] == Field::Sand {
                 return Err(());
             }
 

@@ -1,5 +1,6 @@
 use rand::{thread_rng, Rng};
 use std::collections::VecDeque;
+use std::ops::{Index, IndexMut};
 use super::Position;
 
 #[derive(Clone, PartialEq)]
@@ -27,14 +28,6 @@ impl Board {
         }
 
         Board { fields }
-    }
-
-    pub fn get_field(&self, position: &Position) -> &Field {
-        &self.fields[position.y as usize][position.x as usize]
-    }
-
-    pub fn set_field(&mut self, position: &Position, field: Field) {
-        self.fields[position.y as usize][position.x as usize] = field;
     }
 
     pub fn rows(&self) -> ::std::slice::Iter<Vec<Field>> {
@@ -91,5 +84,19 @@ impl Board {
                 }
             }
         }
+    }
+}
+
+impl<'a> Index<&'a Position> for Board {
+    type Output = Field;
+
+    fn index(&self, position: &Position) -> &Field {
+        &self.fields[position.y as usize][position.x as usize]
+    }
+}
+
+impl<'a> IndexMut<&'a Position>  for Board {
+    fn index_mut(&mut self, position: &Position) -> &mut Field {
+        &mut self.fields[position.y as usize][position.x as usize]
     }
 }
