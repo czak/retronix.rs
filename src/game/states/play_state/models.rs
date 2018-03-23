@@ -84,6 +84,16 @@ impl Board {
         position.x >= 0 && position.x < self.fields[0].len() as i16 &&
             position.y >= 0 && position.y < self.fields.len() as i16
     }
+
+    pub fn clean(&mut self) {
+        for row in self.fields.iter_mut() {
+            for field in row.iter_mut() {
+                if *field == Field::Sand {
+                    *field = Field::Sea;
+                }
+            }
+        }
+    }
 }
 
 impl<'a> Index<&'a Position> for Board {

@@ -89,6 +89,7 @@ pub struct PlayState {
     sea_enemies: Vec<Actor>,
     land_enemies: Vec<Actor>,
     board: Board,
+    lives: u32,
 }
 
 impl PlayState {
@@ -116,6 +117,7 @@ impl PlayState {
                 },
             ],
             board,
+            lives: 3,
         }
     }
 
@@ -211,6 +213,16 @@ impl PlayState {
 
         false
     }
+
+    fn reset(&mut self) {
+        self.board.clean();
+
+        self.player = Actor {
+            position: Position { x: 0, y: 0 },
+            direction: Direction { dx: 0, dy: 0 },
+        };
+
+    }
 }
 
 impl State for PlayState {
@@ -220,10 +232,15 @@ impl State for PlayState {
         self.move_land_enemies();
 
         if self.find_collision() {
-            Some(Box::new(super::GameOverState {}))
-        } else {
-            None
+            self.lives -= 1;
+            if self.lives == 0 {
+                return Some(Box::new(super::GameOverState {}));
+            }
+
+            self.reset();
         }
+
+        None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -257,7 +274,7 @@ impl State for PlayState {
             renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L');
         }
 
-        let score = "Score: 0 Xn: 3 Full: 0% Time: 90";
+        let score = format!("Score: 0 Xn: {} Full: 0% Time: 90", self.lives);
         for (x, c) in score.chars().enumerate() {
             renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
         }
