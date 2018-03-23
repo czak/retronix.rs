@@ -133,14 +133,6 @@ impl PlayState {
                     player.direction = Direction::NONE;
 
                     // TODO: This can be part of 'fill'
-                    for row in self.board.rows_mut() {
-                        for field in row.iter_mut() {
-                            if *field == Field::Sand {
-                                *field = Field::Land;
-                            }
-                        }
-                    }
-
                     let enemy_positions: Vec<&Position> =
                         self.sea_enemies.iter().map(|e| &e.position).collect();
                     self.board.fill(&enemy_positions);
@@ -165,6 +157,30 @@ impl PlayState {
 
             // Land exactly in diagonal?
             if self.board[&enemy.position.moved_to(&enemy.direction)] == Field::Land {
+                enemy.direction = enemy.direction.flipped_x().flipped_y();
+            }
+
+            enemy.position = enemy.position.moved_to(&enemy.direction);
+        }
+    }
+
+    fn move_land_enemies(&mut self) {
+        for enemy in self.land_enemies.iter_mut() {
+            // Land in my horizontal direction?
+            let pos = enemy.position.moved_to(&enemy.direction.horizontal());
+            if !self.board.within_bounds(&pos) || self.board[&pos] != Field::Land {
+                enemy.direction = enemy.direction.flipped_x();
+            }
+
+            // Land in my vertical direction?
+            let pos = enemy.position.moved_to(&enemy.direction.vertical());
+            if !self.board.within_bounds(&pos) || self.board[&pos] != Field::Land {
+                enemy.direction = enemy.direction.flipped_y();
+            }
+
+            // Land exactly in diagonal?
+            let pos = enemy.position.moved_to(&enemy.direction);
+            if !self.board.within_bounds(&pos) || self.board[&pos] != Field::Land {
                 enemy.direction = enemy.direction.flipped_x().flipped_y();
             }
 
@@ -238,7 +254,7 @@ impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
         self.move_player();
         self.move_sea_enemies();
-        // self.move_land_enemies();
+        self.move_land_enemies();
 
         if self.find_collision() {
             Some(Box::new(super::GameOverState {}))

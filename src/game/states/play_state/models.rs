@@ -34,10 +34,6 @@ impl Board {
         self.fields.iter()
     }
 
-    pub fn rows_mut(&mut self) -> ::std::slice::IterMut<Vec<Field>> {
-        self.fields.iter_mut()
-    }
-
     fn random_position(&self) -> Position {
         let mut rng = thread_rng();
         let x = rng.gen_range(0, self.fields[0].len() as i16);
