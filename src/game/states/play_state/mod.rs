@@ -98,7 +98,10 @@ impl PlayState {
 
         PlayState {
             player: Actor {
-                position: Position { x: 0, y: 0 },
+                position: Position {
+                    x: BOARD_WIDTH as i16 / 2,
+                    y: 0,
+                },
                 direction: Direction::NONE,
             },
             sea_enemies: vec![
@@ -218,7 +221,7 @@ impl PlayState {
         self.board.clean();
 
         self.player = Actor {
-            position: Position { x: 0, y: 0 },
+            position: Position { x: BOARD_WIDTH as i16 / 2, y: 0 },
             direction: Direction { dx: 0, dy: 0 },
         };
 
