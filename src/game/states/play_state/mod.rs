@@ -137,7 +137,6 @@ impl PlayState {
                 if self.board[&pos] == Field::Land {
                     player.direction = Direction::NONE;
 
-                    // TODO: This can be part of 'fill'
                     let enemy_positions: Vec<&Position> =
                         self.sea_enemies.iter().map(|e| &e.position).collect();
                     self.board.fill(&enemy_positions);
