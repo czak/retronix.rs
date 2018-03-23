@@ -172,7 +172,9 @@ impl PlayState {
                         }
                     }
 
-                    self.board.fill(&self.sea_enemies.iter().map(|e| (e.position.x, e.position.y)).collect());
+                    let enemy_positions: Vec<&Position> =
+                        self.sea_enemies.iter().map(|e| &e.position).collect();
+                    self.board.fill(&enemy_positions);
                 } else if self.board[&pos] == Field::Sand {
                     return Err(());
                 }

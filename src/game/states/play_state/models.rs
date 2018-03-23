@@ -66,13 +66,11 @@ impl Board {
                 q.push_back((x + 1, y));
             }
         }
-
-
     }
 
-    pub fn fill(&mut self, enemy_positions: &Vec<(i16, i16)>) {
-        for e in enemy_positions {
-            self.flood_fill(*e);
+    pub fn fill(&mut self, enemy_positions: &[&Position]) {
+        for pos in enemy_positions {
+            self.flood_fill((pos.x, pos.y));
         }
 
         for row in self.fields.iter_mut() {
