@@ -164,7 +164,7 @@ impl PlayState {
                 if *self.board.get_field(&pos) == Field::Land {
                     player.direction = Direction::None;
 
-                    for row in self.board.iter_mut() {
+                    for row in self.board.rows_mut() {
                         for field in row.iter_mut() {
                             if let &mut Field::Sand = field {
                                 *field = Field::Land;

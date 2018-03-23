@@ -41,7 +41,7 @@ impl Board {
         self.fields.iter()
     }
 
-    pub fn iter_mut(&mut self) -> ::std::slice::IterMut<Vec<Field>> {
+    pub fn rows_mut(&mut self) -> ::std::slice::IterMut<Vec<Field>> {
         self.fields.iter_mut()
     }
 
