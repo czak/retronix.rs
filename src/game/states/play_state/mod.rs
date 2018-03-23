@@ -154,8 +154,7 @@ impl PlayState {
         let player = &mut self.player;
         let pos = player.position.moved_to(&player.direction);
 
-        if pos.x < 0 || pos.x >= BOARD_WIDTH as i16 ||
-            pos.y < 0 || pos.y >= BOARD_HEIGHT as i16 {
+        if !self.board.within_bounds(&pos) {
             player.direction = Direction::None;
         } else {
             if self.board[&player.position] == Field::Sea {

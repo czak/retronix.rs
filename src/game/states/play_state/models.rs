@@ -85,6 +85,11 @@ impl Board {
             }
         }
     }
+
+    pub fn within_bounds(&self, position: &Position) -> bool {
+        position.x >= 0 && position.x < self.fields[0].len() as i16 &&
+            position.y >= 0 && position.y < self.fields.len() as i16
+    }
 }
 
 impl<'a> Index<&'a Position> for Board {
