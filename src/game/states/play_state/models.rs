@@ -53,24 +53,24 @@ impl Board {
         pos
     }
 
-    fn flood_fill(&mut self, position: (i16, i16)) {
-        let mut q = VecDeque::new();
-        q.push_back(position);
-        while !q.is_empty() {
-            let (x, y) = q.pop_front().unwrap();
-            if self.fields[y as usize][x as usize] == Field::Sea {
-                self.fields[y as usize][x as usize] = Field::DeepSea;
-                q.push_back((x, y - 1));
-                q.push_back((x, y + 1));
-                q.push_back((x - 1, y));
-                q.push_back((x + 1, y));
+    pub fn fill(&mut self, enemy_positions: &[&Position]) {
+        fn flood_fill(fields: &mut Vec<Vec<Field>>, position: (i16, i16)) {
+            let mut q = VecDeque::new();
+            q.push_back(position);
+            while !q.is_empty() {
+                let (x, y) = q.pop_front().unwrap();
+                if fields[y as usize][x as usize] == Field::Sea {
+                    fields[y as usize][x as usize] = Field::DeepSea;
+                    q.push_back((x, y - 1));
+                    q.push_back((x, y + 1));
+                    q.push_back((x - 1, y));
+                    q.push_back((x + 1, y));
+                }
             }
         }
-    }
 
-    pub fn fill(&mut self, enemy_positions: &[&Position]) {
         for pos in enemy_positions {
-            self.flood_fill((pos.x, pos.y));
+            flood_fill(&mut self.fields, (pos.x, pos.y));
         }
 
         for row in self.fields.iter_mut() {
