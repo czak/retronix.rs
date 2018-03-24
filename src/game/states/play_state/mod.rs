@@ -112,6 +112,7 @@ pub struct PlayState {
     land_enemies: Vec<Enemy>,
     board: Board,
     lives: u32,
+    delay: u32,
 }
 
 impl PlayState {
@@ -143,6 +144,7 @@ impl PlayState {
             ],
             board,
             lives: 3,
+            delay: 0,
         }
     }
 
@@ -268,6 +270,14 @@ impl PlayState {
 
 impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
+        if self.delay > 0 {
+            if self.delay == 1 {
+                self.reset();
+            }
+            self.delay -= 1;
+            return None;
+        }
+
         self.bounce_sea_enemies();
         self.bounce_land_enemies();
 
@@ -277,7 +287,8 @@ impl State for PlayState {
                 return Some(Box::new(super::GameOverState {}));
             }
 
-            self.reset();
+            self.delay = 20;
+            return None;
         }
 
         self.move_player();
