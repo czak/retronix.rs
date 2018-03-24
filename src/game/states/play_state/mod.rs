@@ -147,7 +147,7 @@ impl PlayState {
         }
     }
 
-    fn move_sea_enemies(&mut self) {
+    fn bounce_sea_enemies(&mut self) {
         for enemy in self.sea_enemies.iter_mut() {
             // Land in my horizontal direction?
             if self.board[&enemy.position.moved_to(&enemy.direction.horizontal())] == Field::Land {
@@ -163,12 +163,16 @@ impl PlayState {
             if self.board[&enemy.position.moved_to(&enemy.direction)] == Field::Land {
                 enemy.direction = enemy.direction.flipped_x().flipped_y();
             }
+        }
+    }
 
+    fn move_sea_enemies(&mut self) {
+        for enemy in self.sea_enemies.iter_mut() {
             enemy.position = enemy.position.moved_to(&enemy.direction);
         }
     }
 
-    fn move_land_enemies(&mut self) {
+    fn bounce_land_enemies(&mut self) {
         for enemy in self.land_enemies.iter_mut() {
             // Land in my horizontal direction?
             let pos = enemy.position.moved_to(&enemy.direction.horizontal());
@@ -187,28 +191,38 @@ impl PlayState {
             if !self.board.within_bounds(&pos) || self.board[&pos] != Field::Land {
                 enemy.direction = enemy.direction.flipped_x().flipped_y();
             }
+        }
+    }
 
+    fn move_land_enemies(&mut self) {
+        for enemy in self.land_enemies.iter_mut() {
             enemy.position = enemy.position.moved_to(&enemy.direction);
         }
     }
 
     fn find_collision(&self) -> bool {
-        if self.board[&self.player.position] == Field::Sand {
+        let position = &self.player.position.moved_to(&self.player.direction);
+        if self.board.within_bounds(&position) && self.board[&position] == Field::Sand {
             return true;
         }
 
         for enemy in &self.sea_enemies {
-            if enemy.position == self.player.position {
+            // if sea enemy WILL move (or move-vert/move-horiz) into player
+            let position = enemy.position.moved_to(&enemy.direction);
+            if position == self.player.position {
                 return true;
             }
 
-            if self.board[&enemy.position] == Field::Sand {
+            // if sea enemy WILL move (or move-vert/move-horiz) into sand
+            if self.board[&position] == Field::Sand {
                 return true;
             }
         }
 
+        // if land enemy WILL move (or move-vert/move-horiz) into player
         for enemy in &self.land_enemies {
-            if enemy.position == self.player.position {
+            let position = enemy.position.moved_to(&enemy.direction);
+            if position == self.player.position {
                 return true;
             }
         }
@@ -247,10 +261,8 @@ impl State for PlayState {
         //    - if land enemy WILL move (or move-vert/move-horiz) into player
         //    => die and reset if any of above is going to be true
         //  3. Otherwise, move all actors in their current (already bounced in 1) direction
-
-        self.move_player();
-        self.move_sea_enemies();
-        self.move_land_enemies();
+        self.bounce_sea_enemies();
+        self.bounce_land_enemies();
 
         if self.find_collision() {
             self.lives -= 1;
@@ -260,6 +272,10 @@ impl State for PlayState {
 
             self.reset();
         }
+
+        self.move_player();
+        self.move_sea_enemies();
+        self.move_land_enemies();
 
         None
     }
