@@ -238,6 +238,16 @@ impl PlayState {
 
 impl State for PlayState {
     fn update(&mut self) -> Option<Box<State>> {
+        // TODO: Split into 3 steps:
+        // 1. Bounce enemies (update directions if heading into wall). Don't move yet.
+        // 2. Detect collisions
+        //    - if player WILL move into sand
+        //    - if sea enemy WILL move (or move-vert/move-horiz) into player
+        //    - if sea enemy WILL move (or move-vert/move-horiz) into sand
+        //    - if land enemy WILL move (or move-vert/move-horiz) into player
+        //    => die and reset if any of above is going to be true
+        //  3. Otherwise, move all actors in their current (already bounced in 1) direction
+
         self.move_player();
         self.move_sea_enemies();
         self.move_land_enemies();
