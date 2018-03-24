@@ -112,6 +112,7 @@ pub struct PlayState {
     land_enemies: Vec<Enemy>,
     board: Board,
     lives: u32,
+    score: u32,
     delay: u32,
 }
 
@@ -144,6 +145,7 @@ impl PlayState {
             ],
             board,
             lives: 3,
+            score: 0,
             delay: 0,
         }
     }
@@ -163,7 +165,7 @@ impl PlayState {
 
                     let enemy_positions: Vec<&Position> =
                         self.sea_enemies.iter().map(|e| &e.position).collect();
-                    self.board.fill(&enemy_positions);
+                    self.score += self.board.fill(&enemy_positions);
                 }
             }
 
@@ -329,7 +331,8 @@ impl State for PlayState {
             renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L');
         }
 
-        let score = format!("Score: 0 Xn: {} Full: {:.0}% Time: 90",
+        let score = format!("Score: {} Xn: {} Full: {:.0}% Time: 90",
+                            self.score,
                             self.lives,
                             self.board.fill_ratio * 100.0);
         for (x, c) in score.chars().enumerate() {

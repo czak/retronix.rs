@@ -57,7 +57,7 @@ impl Board {
         pos
     }
 
-    pub fn fill(&mut self, enemy_positions: &[&Position]) {
+    pub fn fill(&mut self, enemy_positions: &[&Position]) -> u32 {
         fn flood_fill(fields: &mut Vec<Vec<Field>>, position: (i16, i16)) {
             let mut q = VecDeque::new();
             q.push_back(position);
@@ -78,6 +78,7 @@ impl Board {
         }
 
         let mut remaining_sea_fields = 0;
+        let mut new_land_fields = 0;
         for row in self.fields.iter_mut() {
             for field in row.iter_mut() {
                 if *field == Field::DeepSea {
@@ -85,12 +86,15 @@ impl Board {
                     remaining_sea_fields += 1;
                 } else if *field == Field::Sea || *field == Field::Sand {
                     *field = Field::Land;
+                    new_land_fields += 1;
                 }
             }
         }
 
         let total_sea_fields = (self.width - 4) * (self.height - 4);
         self.fill_ratio = 1.0 - remaining_sea_fields as f64 / total_sea_fields as f64;
+
+        new_land_fields
     }
 
     pub fn within_bounds(&self, position: &Position) -> bool {
