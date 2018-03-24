@@ -25,30 +25,10 @@ impl game::Renderer for FakeScreen {
 }
 
 fn main() {
-    let stdin = io::stdin();
-
     let (tx, rx) = mpsc::channel();
 
-    let tx2 = tx.clone();
-    thread::spawn(move || {
-        for c in stdin.keys() {
-            match c.unwrap() {
-                Key::Up        => tx2.send(Event::Up).unwrap(),
-                Key::Down      => tx2.send(Event::Down).unwrap(),
-                Key::Left      => tx2.send(Event::Left).unwrap(),
-                Key::Right     => tx2.send(Event::Right).unwrap(),
-                Key::Char('q') => tx2.send(Event::Quit).unwrap(),
-                _ => {},
-            }
-        }
-    });
-
-    thread::spawn(move || {
-        loop {
-            tx.send(Event::Tick).unwrap();
-            thread::sleep(time::Duration::from_millis(100));
-        }
-    });
+    input_thread(tx.clone());
+    tick_thread(tx.clone());
 
     let mut screen = screen::init(WIDTH, HEIGHT);
     // let mut screen = FakeScreen {};
@@ -70,4 +50,29 @@ fn main() {
             },
         }
     }
+}
+
+fn input_thread(tx: mpsc::Sender<Event>) {
+    thread::spawn(move || {
+        for c in io::stdin().keys() {
+            match c.unwrap() {
+                Key::Up        => tx.send(Event::Up).unwrap(),
+                Key::Down      => tx.send(Event::Down).unwrap(),
+                Key::Left      => tx.send(Event::Left).unwrap(),
+                Key::Right     => tx.send(Event::Right).unwrap(),
+                Key::Char('q') => tx.send(Event::Quit).unwrap(),
+                _ => {},
+            }
+        }
+    });
+}
+
+fn tick_thread(tx: mpsc::Sender<Event>) {
+    thread::spawn(move || {
+        loop {
+            tx.send(Event::Tick).unwrap();
+            thread::sleep(time::Duration::from_millis(100));
+        }
+    });
+
 }
