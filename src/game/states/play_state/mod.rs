@@ -79,15 +79,37 @@ fn random_diagonal() -> Direction {
     thread_rng().choose(&DIAGONALS).unwrap().clone()
 }
 
-struct Actor {
+struct Player {
     position: Position,
     direction: Direction,
 }
 
+struct Enemy {
+    position: Position,
+    direction: Direction,
+}
+
+impl Enemy {
+    /// Array of positions where the enemy hits an object
+    fn hit_positions(&self) -> [Position; 3] {
+        [
+            self.position.moved_to(&self.direction),
+            self.position.moved_to(&self.direction.horizontal()),
+            self.position.moved_to(&self.direction.vertical()),
+        ]
+    }
+
+    fn hit_check<F>(&self, position_test: F) -> bool
+        where F: Fn(&Position) -> bool
+    {
+        self.hit_positions().iter().any(position_test)
+    }
+}
+
 pub struct PlayState {
-    player: Actor,
-    sea_enemies: Vec<Actor>,
-    land_enemies: Vec<Actor>,
+    player: Player,
+    sea_enemies: Vec<Enemy>,
+    land_enemies: Vec<Enemy>,
     board: Board,
     lives: u32,
 }
@@ -97,7 +119,7 @@ impl PlayState {
         let board = Board::new(BOARD_WIDTH, BOARD_HEIGHT);
 
         PlayState {
-            player: Actor {
+            player: Player {
                 position: Position {
                     x: BOARD_WIDTH as i16 / 2,
                     y: 0,
@@ -105,13 +127,13 @@ impl PlayState {
                 direction: Direction::NONE,
             },
             sea_enemies: vec![
-                Actor {
+                Enemy {
                     position: board.random_position_of_type(Field::Sea),
                     direction: random_diagonal(),
                 },
             ],
             land_enemies: vec![
-                Actor {
+                Enemy {
                     position: Position {
                         x: BOARD_WIDTH as i16 / 2,
                         y: BOARD_HEIGHT as i16 - 2,
@@ -207,22 +229,16 @@ impl PlayState {
         }
 
         for enemy in &self.sea_enemies {
-            // if sea enemy WILL move (or move-vert/move-horiz) into player
-            let position = enemy.position.moved_to(&enemy.direction);
-            if position == self.player.position {
-                return true;
-            }
-
-            // if sea enemy WILL move (or move-vert/move-horiz) into sand
-            if self.board[&position] == Field::Sand {
+            if enemy.hit_check(|position| {
+                *position == self.player.position || self.board[position] == Field::Sand
+            }) {
                 return true;
             }
         }
 
         // if land enemy WILL move (or move-vert/move-horiz) into player
         for enemy in &self.land_enemies {
-            let position = enemy.position.moved_to(&enemy.direction);
-            if position == self.player.position {
+            if enemy.hit_check(|p| *p == self.player.position) {
                 return true;
             }
         }
@@ -233,13 +249,13 @@ impl PlayState {
     fn reset(&mut self) {
         self.board.clean();
 
-        self.player = Actor {
+        self.player = Player {
             position: Position { x: BOARD_WIDTH as i16 / 2, y: 0 },
             direction: Direction { dx: 0, dy: 0 },
         };
 
         self.land_enemies = vec![
-            Actor {
+            Enemy {
                 position: Position {
                     x: BOARD_WIDTH as i16 / 2,
                     y: BOARD_HEIGHT as i16 - 2,
