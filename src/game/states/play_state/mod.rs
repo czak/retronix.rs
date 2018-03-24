@@ -335,8 +335,7 @@ impl State for PlayState {
                             self.score,
                             self.lives,
                             self.board.fill_ratio * 100.0);
-        for (x, c) in score.chars().enumerate() {
-            if x == BOARD_WIDTH { break; }
+        for (x, c) in score.chars().take(BOARD_WIDTH).enumerate() {
             renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
         }
     }
