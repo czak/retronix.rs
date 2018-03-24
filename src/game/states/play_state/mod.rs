@@ -320,6 +320,7 @@ impl State for PlayState {
 
         let score = format!("Score: 0 Xn: {} Full: 0% Time: 90", self.lives);
         for (x, c) in score.chars().enumerate() {
+            if x == BOARD_WIDTH { break; }
             renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
         }
     }
