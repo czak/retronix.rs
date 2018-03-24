@@ -13,6 +13,9 @@ pub enum Field {
 
 pub struct Board {
     fields: Vec<Vec<Field>>,
+    width: usize,
+    height: usize,
+    pub fill_ratio: f64,
 }
 
 impl Board {
@@ -27,7 +30,12 @@ impl Board {
             }
         }
 
-        Board { fields }
+        Board {
+            fields,
+            width,
+            height,
+            fill_ratio: 0.0
+        }
     }
 
     pub fn rows(&self) -> ::std::slice::Iter<Vec<Field>> {
@@ -69,15 +77,20 @@ impl Board {
             flood_fill(&mut self.fields, (pos.x, pos.y));
         }
 
+        let mut remaining_sea_fields = 0;
         for row in self.fields.iter_mut() {
             for field in row.iter_mut() {
                 if *field == Field::DeepSea {
                     *field = Field::Sea;
+                    remaining_sea_fields += 1;
                 } else if *field == Field::Sea || *field == Field::Sand {
                     *field = Field::Land;
                 }
             }
         }
+
+        let total_sea_fields = (self.width - 4) * (self.height - 4);
+        self.fill_ratio = 1.0 - remaining_sea_fields as f64 / total_sea_fields as f64;
     }
 
     pub fn within_bounds(&self, position: &Position) -> bool {

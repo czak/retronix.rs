@@ -318,7 +318,9 @@ impl State for PlayState {
             renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L');
         }
 
-        let score = format!("Score: 0 Xn: {} Full: 0% Time: 90", self.lives);
+        let score = format!("Score: 0 Xn: {} Full: {:.0}% Time: 90",
+                            self.lives,
+                            self.board.fill_ratio * 100.0);
         for (x, c) in score.chars().enumerate() {
             if x == BOARD_WIDTH { break; }
             renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
