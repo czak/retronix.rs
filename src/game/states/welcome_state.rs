@@ -19,7 +19,7 @@ impl State for WelcomeState {
     fn handle_event(&mut self, event: Event) -> Transition {
         match event {
             Event::Right => {
-                let state = super::PlayState::new();
+                let state = super::PlayState::new(1, 0, 3);
                 Transition::Push(Box::new(state))
             },
             _ => Transition::None,

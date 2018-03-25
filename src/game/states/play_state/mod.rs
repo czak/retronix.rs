@@ -111,14 +111,23 @@ pub struct PlayState {
     sea_enemies: Vec<Enemy>,
     land_enemies: Vec<Enemy>,
     board: Board,
-    lives: u32,
+    level: u32,
     score: u32,
+    lives: u32,
     delay: u32,
 }
 
 impl PlayState {
-    pub fn new() -> PlayState {
+    pub fn new(level: u32, score: u32, lives: u32) -> PlayState {
         let board = Board::new(BOARD_WIDTH, BOARD_HEIGHT);
+
+        let mut sea_enemies = vec![];
+        for _ in 0..level {
+            sea_enemies.push(Enemy {
+                position: board.random_position_of_type(Field::Sea),
+                direction: random_diagonal(),
+            });
+        }
 
         PlayState {
             player: Player {
@@ -128,12 +137,7 @@ impl PlayState {
                 },
                 direction: Direction::NONE,
             },
-            sea_enemies: vec![
-                Enemy {
-                    position: board.random_position_of_type(Field::Sea),
-                    direction: random_diagonal(),
-                },
-            ],
+            sea_enemies,
             land_enemies: vec![
                 Enemy {
                     position: Position {
@@ -144,8 +148,9 @@ impl PlayState {
                 },
             ],
             board,
-            lives: 3,
-            score: 0,
+            level,
+            score,
+            lives,
             delay: 0,
         }
     }
@@ -296,6 +301,11 @@ impl State for PlayState {
         self.move_player();
         self.move_sea_enemies();
         self.move_land_enemies();
+
+        if self.board.fill_ratio > 0.2 {
+            let next_level = Self::new(self.level + 1, self.score, self.lives);
+            return Transition::Replace(Box::new(next_level));
+        }
 
         Transition::None
     }
