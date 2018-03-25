@@ -1,11 +1,11 @@
-use game::{State, Event, Renderer};
+use game::{State, Event, Renderer, Transition};
 
 pub struct GameOverState {
 }
 
 impl State for GameOverState {
-    fn update(&mut self) -> Option<Box<State>> {
-        None
+    fn update(&mut self) -> Transition {
+        Transition::None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -15,7 +15,7 @@ impl State for GameOverState {
         }
     }
 
-    fn handle_event(&mut self, _event: Event) -> Option<Box<State>> {
-        None
+    fn handle_event(&mut self, _event: Event) -> Transition {
+        Transition::None
     }
 }

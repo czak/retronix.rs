@@ -1,7 +1,7 @@
 mod models;
 
 use rand::{thread_rng, Rng};
-use game::{Event, State, Renderer};
+use game::{Event, State, Renderer, Transition};
 use self::models::{Board, Field};
 
 // TODO: Pass when constructing the state
@@ -271,13 +271,13 @@ impl PlayState {
 }
 
 impl State for PlayState {
-    fn update(&mut self) -> Option<Box<State>> {
+    fn update(&mut self) -> Transition {
         if self.delay > 0 {
             if self.delay == 1 {
                 self.reset();
             }
             self.delay -= 1;
-            return None;
+            return Transition::None;
         }
 
         self.bounce_sea_enemies();
@@ -286,18 +286,18 @@ impl State for PlayState {
         if self.find_collision() {
             self.lives -= 1;
             if self.lives == 0 {
-                return Some(Box::new(super::GameOverState {}));
+                return Transition::Push(Box::new(super::GameOverState {}));
             }
 
             self.delay = 20;
-            return None;
+            return Transition::None;
         }
 
         self.move_player();
         self.move_sea_enemies();
         self.move_land_enemies();
 
-        None
+        Transition::None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -340,7 +340,7 @@ impl State for PlayState {
         }
     }
 
-    fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
+    fn handle_event(&mut self, event: Event) -> Transition {
         match event {
             Event::Up => {
                 self.player.direction = Direction::NORTH;
@@ -357,6 +357,6 @@ impl State for PlayState {
             _ => {},
         }
 
-        None
+        Transition::None
     }
 }

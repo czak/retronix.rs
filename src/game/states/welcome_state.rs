@@ -1,12 +1,12 @@
-use game::{State, Event, Renderer};
+use game::{State, Event, Renderer, Transition};
 
 #[allow(dead_code)]
 pub struct WelcomeState {
 }
 
 impl State for WelcomeState {
-    fn update(&mut self) -> Option<Box<State>> {
-        None
+    fn update(&mut self) -> Transition {
+        Transition::None
     }
 
     fn render(&mut self, renderer: &mut Renderer) {
@@ -16,13 +16,13 @@ impl State for WelcomeState {
         }
     }
 
-    fn handle_event(&mut self, event: Event) -> Option<Box<State>> {
+    fn handle_event(&mut self, event: Event) -> Transition {
         match event {
             Event::Right => {
                 let state = super::PlayState::new();
-                Some(Box::new(state))
+                Transition::Push(Box::new(state))
             },
-            _ => None,
+            _ => Transition::None,
         }
     }
 }
