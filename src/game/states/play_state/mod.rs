@@ -119,8 +119,7 @@ pub struct PlayState {
     level: u32,
     score: u32,
     lives: u32,
-    delay: u32,
-    delay_type: DelayType,
+    delay: (u32, DelayType),
 }
 
 impl PlayState {
@@ -157,8 +156,7 @@ impl PlayState {
             level,
             score,
             lives,
-            delay: 0,
-            delay_type: DelayType::Death,
+            delay: (0, DelayType::Death),
         }
     }
 
@@ -284,10 +282,10 @@ impl PlayState {
 
 impl State for PlayState {
     fn update(&mut self) -> Transition {
-        if self.delay > 0 {
-            self.delay -= 1;
-            if self.delay == 0 {
-                match self.delay_type {
+        if self.delay.0 > 0 {
+            self.delay.0 -= 1;
+            if self.delay.0 == 0 {
+                match self.delay.1 {
                     DelayType::Death => self.reset(),
                     DelayType::NextLevel => {
                         let next_level = Self::new(self.level + 1, self.score, self.lives);
@@ -307,8 +305,7 @@ impl State for PlayState {
                 return Transition::Push(Box::new(super::GameOverState {}));
             }
 
-            self.delay = 20;
-            self.delay_type = DelayType::Death;
+            self.delay = (20, DelayType::Death);
             return Transition::None;
         }
 
@@ -317,8 +314,7 @@ impl State for PlayState {
         self.move_land_enemies();
 
         if self.board.fill_ratio > 0.2 {
-            self.delay = 20;
-            self.delay_type = DelayType::NextLevel;
+            self.delay = (20, DelayType::NextLevel);
         }
 
         Transition::None
