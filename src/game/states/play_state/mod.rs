@@ -106,9 +106,10 @@ impl Enemy {
     }
 }
 
-enum DelayType {
-    Death,
-    NextLevel,
+enum Delay {
+    Death(u32),
+    NextLevel(u32),
+    None,
 }
 
 pub struct PlayState {
@@ -119,7 +120,7 @@ pub struct PlayState {
     level: u32,
     score: u32,
     lives: u32,
-    delay: (u32, DelayType),
+    delay: Delay,
 }
 
 impl PlayState {
@@ -156,7 +157,7 @@ impl PlayState {
             level,
             score,
             lives,
-            delay: (0, DelayType::Death),
+            delay: Delay::None,
         }
     }
 
@@ -282,19 +283,23 @@ impl PlayState {
 
 impl State for PlayState {
     fn update(&mut self) -> Transition {
-        if self.delay.0 > 0 {
-            self.delay.0 -= 1;
-            if self.delay.0 == 0 {
-                match self.delay.1 {
-                    DelayType::Death => self.reset(),
-                    DelayType::NextLevel => {
-                        let next_level = Self::new(self.level + 1, self.score, self.lives);
-                        return Transition::Replace(Box::new(next_level));
-                    },
-                }
+        match self.delay {
+            Delay::Death(0) => {
+                self.delay = Delay::None;
+                self.reset();
+                return Transition::None;
+            },
+            Delay::NextLevel(0) => {
+                let next_level = Self::new(self.level + 1, self.score, self.lives);
+                return Transition::Replace(Box::new(next_level));
+            },
+            Delay::Death(ref mut counter) | Delay::NextLevel(ref mut counter) => {
+                *counter -= 1;
+                return Transition::None;
             }
-            return Transition::None;
+            _ => {},
         }
+
 
         self.bounce_sea_enemies();
         self.bounce_land_enemies();
@@ -305,7 +310,7 @@ impl State for PlayState {
                 return Transition::Push(Box::new(super::GameOverState {}));
             }
 
-            self.delay = (20, DelayType::Death);
+            self.delay = Delay::Death(20);
             return Transition::None;
         }
 
@@ -314,7 +319,7 @@ impl State for PlayState {
         self.move_land_enemies();
 
         if self.board.fill_ratio > 0.2 {
-            self.delay = (20, DelayType::NextLevel);
+            self.delay = Delay::NextLevel(20);
         }
 
         Transition::None
