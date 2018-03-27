@@ -8,7 +8,7 @@ impl State for GameOverState {
         Transition::None
     }
 
-    fn render(&mut self, renderer: &mut Renderer) {
+    fn render(&self, renderer: &mut Renderer) {
         let msg = "GAME OVER";
         for (i, c) in msg.chars().enumerate() {
             renderer.put_cell(i as u16, 0, c);

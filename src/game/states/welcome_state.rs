@@ -9,7 +9,7 @@ impl State for WelcomeState {
         Transition::None
     }
 
-    fn render(&mut self, renderer: &mut Renderer) {
+    fn render(&self, renderer: &mut Renderer) {
         let msg = "Press → to play.";
         for (i, c) in msg.chars().enumerate() {
             renderer.put_cell(i as u16, 0, c);

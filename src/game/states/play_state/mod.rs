@@ -325,7 +325,7 @@ impl State for PlayState {
         Transition::None
     }
 
-    fn render(&mut self, renderer: &mut Renderer) {
+    fn render(&self, renderer: &mut Renderer) {
         for (y, row) in self.board.rows().enumerate() {
             for (x, field) in row.iter().enumerate() {
                 let c = match field {

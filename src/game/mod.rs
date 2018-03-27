@@ -37,7 +37,7 @@ pub trait Renderer {
 
 pub trait State {
     fn update(&mut self) -> Transition;
-    fn render(&mut self, renderer: &mut Renderer);
+    fn render(&self, renderer: &mut Renderer);
     fn handle_event(&mut self, event: Event) -> Transition;
 }
 
