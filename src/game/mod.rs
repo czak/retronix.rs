@@ -38,6 +38,7 @@ pub trait Renderer {
 pub trait State {
     fn update(&mut self) -> Transition;
     fn render(&self, renderer: &mut Renderer);
+    fn render_parent(&self) -> bool;
     fn handle_event(&mut self, event: Event) -> Transition;
 }
 
@@ -46,9 +47,15 @@ pub struct Game {
     states: Vec<Box<State>>,
 }
 
+// NOTE: Assumes there will be at least one state
+// (see unwrap in Game::current_state)
 impl Game {
     pub fn render(&mut self, renderer: &mut Renderer) {
-        if let Some(state) = self.states.last_mut() {
+        let first = self.states.iter().rposition(|state| {
+            !state.render_parent()
+        }).unwrap();
+
+        for state in self.states.iter().skip(first) {
             state.render(renderer);
         }
     }
@@ -76,6 +83,10 @@ impl Game {
 pub fn init() -> Game {
     Game {
         events: VecDeque::new(),
-        states: vec![Box::new(states::PlayState::new(1, 0, 3))],
+        states: vec![
+            // Box::new(states::WelcomeState {}),
+            Box::new(states::PlayState::new(1, 0, 3)),
+            // Box::new(states::GameOverState {}),
+        ],
     }
 }

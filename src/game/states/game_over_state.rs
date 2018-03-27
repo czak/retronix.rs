@@ -15,6 +15,10 @@ impl State for GameOverState {
         }
     }
 
+    fn render_parent(&self) -> bool {
+        true
+    }
+
     fn handle_event(&mut self, _event: Event) -> Transition {
         Transition::None
     }

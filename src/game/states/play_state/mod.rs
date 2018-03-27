@@ -365,6 +365,10 @@ impl State for PlayState {
         }
     }
 
+    fn render_parent(&self) -> bool {
+        false
+    }
+
     fn handle_event(&mut self, event: Event) -> Transition {
         match event {
             Event::Up => {
