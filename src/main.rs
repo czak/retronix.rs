@@ -19,9 +19,14 @@ const HEIGHT: usize = 13;
 #[allow(dead_code)]
 struct FakeScreen {}
 
+#[allow(dead_code)]
+impl FakeScreen {
+    fn clear(&mut self) {}
+    fn flush(&mut self) {}
+}
+
 impl game::Renderer for FakeScreen {
-    fn put_cell(&mut self, _x: u16, _y: u16, _c: char) {
-    }
+    fn put_cell(&mut self, _x: u16, _y: u16, _c: char) {}
 }
 
 fn main() {
