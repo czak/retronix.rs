@@ -5,8 +5,8 @@ use game::{Event, State, Renderer, Transition};
 use self::models::{Board, Field};
 
 // TODO: Pass when constructing the state
-const BOARD_WIDTH: usize = 32;
-const BOARD_HEIGHT: usize = 12;
+const BOARD_WIDTH: usize = 80;
+const BOARD_HEIGHT: usize = 25;
 
 #[derive(Clone, PartialEq)]
 pub struct Position {

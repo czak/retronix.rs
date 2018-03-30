@@ -13,8 +13,8 @@ use std::time;
 
 use game::Event;
 
-const WIDTH: usize = 32;
-const HEIGHT: usize = 13;
+const WIDTH: usize = 80;
+const HEIGHT: usize = 26;
 
 #[allow(dead_code)]
 struct FakeScreen {}
