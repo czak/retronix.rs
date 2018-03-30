@@ -10,9 +10,20 @@ impl State for WelcomeState {
     }
 
     fn render(&self, renderer: &mut Renderer) {
-        let msg = "Press → to play.";
-        for (i, c) in msg.chars().enumerate() {
-            renderer.put_cell(i as u16, 0, c);
+        let msg = [
+            "░░░░░░░░  ░░░░░░░░░ ░░░░░░░░ ░░░░░░░░   ░░░░░░░  ░░░░   ░░░ ░░░░░░░░ ░░░   ░░░",
+            "░▒░   ░▒░ ░▒░          ░░    ░▒░   ░▒░ ░▒░   ░▒░ ░▒░▒░  ░▒░    ░░    ░▒░   ░▒░",
+            "▒░▒   ▒░▒ ▒░▒          ▒▒    ▒░▒   ▒░▒ ▒░▒   ▒░▒ ░▒░▒░░ ▒░▒    ▒▒     ▒░▒ ▒░▒ ",
+            "▒█▒▒▒▒█░  ▒█▒▒▒▒█      ▒▒    ▒█▒▒▒▒█░  ▒█▒   ▒░▒ ▒█▒ ▒░ ▒█▒    ▒▒      ▒█▒░▒  ",
+            "▒█▒   ▒█▒ ▒█▒          ▒▒    ▒█▒   ▒█▒ ▒█▒   ▒█▒ ▒█▒  ▒██▒█    ▒▒     ▒█▒ ▒█▒ ",
+            "█▒█   █▒█ █▒█          ██    █▒█   █▒█ █▒█   █▒█ █▒█   ██▒█    ██    █▒█   █▒█",
+            "███   ███ █████████    ██    ███   ███  ███████  ███    ███ ████████ ███   ███",
+        ];
+
+        for (y, line) in msg.iter().enumerate() {
+            for (x, c) in line.chars().enumerate() {
+                renderer.put_cell(x as u16, y as u16, c);
+            }
         }
     }
 
