@@ -3,6 +3,7 @@ extern crate termion;
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 use std::io::{self, Write};
+use std::fmt;
 use renderer::{Renderer, Color};
 
 pub fn init(width: usize, height: usize) -> Screen {
@@ -36,14 +37,25 @@ impl Screen {
         let (cols, rows) = termion::terminal_size().unwrap();
         write!(self.stdout, "{}", termion::cursor::Goto(1, 1)).unwrap();
         for row in self.buffer.iter().take((rows - 1) as usize) {
-            for &(c, _) in row.iter().take(cols as usize) {
+            for &(c, color) in row.iter().take(cols as usize) {
                 write!(self.stdout, "{}{}",
-                       termion::color::Fg(termion::color::Cyan),
+                       color,
                        c).unwrap();
             }
             write!(self.stdout, "\n\r").unwrap();
         }
         self.stdout.flush().unwrap();
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let termion_color = match *self {
+            Color::White => format!("{}", termion::color::Fg(termion::color::White)),
+            Color::Cyan => format!("{}", termion::color::Fg(termion::color::Cyan)),
+            Color::Magenta => format!("{}", termion::color::Fg(termion::color::Magenta)),
+        };
+        write!(f, "{}", termion_color)
     }
 }
 
@@ -55,8 +67,8 @@ impl Drop for Screen {
 }
 
 impl Renderer for Screen {
-    fn put_cell(&mut self, x: u16, y: u16, c: char) {
-        self.buffer[y as usize][x as usize] = (c, Color::White);
+    fn put_cell(&mut self, x: u16, y: u16, c: char, color: Color) {
+        self.buffer[y as usize][x as usize] = (c, color);
     }
 }
 

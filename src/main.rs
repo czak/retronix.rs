@@ -27,7 +27,7 @@ impl FakeScreen {
 }
 
 impl renderer::Renderer for FakeScreen {
-    fn put_cell(&mut self, _x: u16, _y: u16, _c: char) {}
+    fn put_cell(&mut self, _x: u16, _y: u16, _c: char, _color: renderer::Color) {}
 }
 
 fn main() {

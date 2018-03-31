@@ -82,7 +82,7 @@ pub fn init() -> Game {
         events: VecDeque::new(),
         states: vec![
             Box::new(states::WelcomeState {}),
-            // Box::new(states::PlayState::new(1, 0, 3)),
+            Box::new(states::PlayState::new(1, 0, 3)),
             // Box::new(states::GameOverState {}),
         ],
     }

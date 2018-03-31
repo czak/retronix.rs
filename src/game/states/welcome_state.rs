@@ -1,5 +1,5 @@
 use game::{State, Event, Transition};
-use renderer::Renderer;
+use renderer::{Renderer, Color};
 
 #[allow(dead_code)]
 pub struct WelcomeState {
@@ -23,7 +23,7 @@ impl State for WelcomeState {
 
         for (y, line) in msg.iter().enumerate() {
             for (x, c) in line.chars().enumerate() {
-                renderer.put_cell(x as u16, y as u16, c);
+                renderer.put_cell(x as u16, y as u16, c, Color::White);
             }
         }
     }

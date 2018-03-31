@@ -2,7 +2,7 @@ mod models;
 
 use rand::{thread_rng, Rng};
 use game::{Event, State, Transition};
-use renderer::Renderer;
+use renderer::{Renderer, Color};
 use self::models::{Board, Field};
 
 // TODO: Pass when constructing the state
@@ -338,7 +338,8 @@ impl State for PlayState {
                 renderer.put_cell(
                     x as u16,
                     y as u16,
-                    c
+                    c,
+                    Color::Cyan,
                 );
             }
         }
@@ -346,15 +347,16 @@ impl State for PlayState {
         renderer.put_cell(
             self.player.position.x as u16,
             self.player.position.y as u16,
-            'x'
+            'x',
+            Color::White,
         );
 
         for e in self.sea_enemies.iter() {
-            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'S');
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'S', Color::Magenta);
         }
 
         for e in self.land_enemies.iter() {
-            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L');
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L', Color::Magenta);
         }
 
         let score = format!("Score: {} Xn: {} Full: {:.0}% Time: 90",
@@ -362,7 +364,7 @@ impl State for PlayState {
                             self.lives,
                             self.board.fill_ratio * 100.0);
         for (x, c) in score.chars().take(BOARD_WIDTH).enumerate() {
-            renderer.put_cell(x as u16, self.board.rows().len() as u16, c);
+            renderer.put_cell(x as u16, self.board.rows().len() as u16, c, Color::White);
         }
     }
 
