@@ -23,7 +23,13 @@ impl State for WelcomeState {
 
         for (y, line) in msg.iter().enumerate() {
             for (x, c) in line.chars().enumerate() {
-                renderer.put_cell(x as u16, y as u16, c, Color::White);
+                let color = match c {
+                    '░' => Color::Magenta,
+                    '▒' => Color::Cyan,
+                    '█' => Color::White,
+                    _ => Color::White,
+                };
+                renderer.put_cell(x as u16, y as u16, c, color);
             }
         }
     }
