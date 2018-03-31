@@ -32,6 +32,14 @@ impl State for WelcomeState {
                 renderer.put_cell(x as u16, y as u16, c, color);
             }
         }
+
+        for (i, c) in "Made by Lukasz Adamczak".chars().enumerate() {
+            renderer.put_cell((i + 30) as u16, 10, c, Color::White);
+        }
+
+        for (i, c) in "Based on Xonix by Ilan Rav & Dani Katz".chars().enumerate() {
+            renderer.put_cell((i + 22) as u16, 11, c, Color::White);
+        }
     }
 
     fn render_parent(&self) -> bool {
