@@ -1,4 +1,5 @@
-use game::{State, Event, Renderer, Transition};
+use game::{State, Event, Transition};
+use renderer::Renderer;
 
 pub struct GameOverState {
 }

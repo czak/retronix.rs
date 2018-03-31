@@ -1,4 +1,5 @@
-use game::{State, Event, Renderer, Transition};
+use game::{State, Event, Transition};
+use renderer::Renderer;
 
 #[allow(dead_code)]
 pub struct WelcomeState {

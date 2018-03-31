@@ -1,7 +1,8 @@
 mod models;
 
 use rand::{thread_rng, Rng};
-use game::{Event, State, Renderer, Transition};
+use game::{Event, State, Transition};
+use renderer::Renderer;
 use self::models::{Board, Field};
 
 // TODO: Pass when constructing the state

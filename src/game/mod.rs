@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use renderer::Renderer;
 
 mod states;
 
@@ -29,10 +30,6 @@ impl Transition {
             _ => {}
         }
     }
-}
-
-pub trait Renderer {
-    fn put_cell(&mut self, x: u16, y: u16, c: char);
 }
 
 pub trait State {

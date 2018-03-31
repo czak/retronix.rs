@@ -2,6 +2,7 @@ extern crate termion;
 extern crate rand;
 
 mod game;
+mod renderer;
 mod screen;
 
 use termion::event::Key;
@@ -25,7 +26,7 @@ impl FakeScreen {
     fn flush(&mut self) {}
 }
 
-impl game::Renderer for FakeScreen {
+impl renderer::Renderer for FakeScreen {
     fn put_cell(&mut self, _x: u16, _y: u16, _c: char) {}
 }
 

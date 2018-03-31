@@ -3,8 +3,7 @@ extern crate termion;
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 use std::io::{self, Write};
-
-use game;
+use renderer::Renderer;
 
 pub fn init(width: usize, height: usize) -> Screen {
     let mut stdout = AlternateScreen::from(io::stdout().into_raw_mode().unwrap());
@@ -50,7 +49,7 @@ impl Drop for Screen {
     }
 }
 
-impl game::Renderer for Screen {
+impl Renderer for Screen {
     fn put_cell(&mut self, x: u16, y: u16, c: char) {
         self.buffer[y as usize][x as usize] = c;
     }
