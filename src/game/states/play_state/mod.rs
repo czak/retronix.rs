@@ -319,7 +319,7 @@ impl State for PlayState {
         self.move_sea_enemies();
         self.move_land_enemies();
 
-        if self.board.fill_ratio > 0.2 {
+        if self.board.fill_ratio > 0.8 {
             self.delay = Delay::NextLevel(20);
         }
 
