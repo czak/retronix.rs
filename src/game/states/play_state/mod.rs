@@ -347,16 +347,16 @@ impl State for PlayState {
         renderer.put_cell(
             self.player.position.x as u16,
             self.player.position.y as u16,
-            'x',
-            Color::White,
+            '█',
+            Color::Magenta,
         );
 
         for e in self.sea_enemies.iter() {
-            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'S', Color::Magenta);
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, ' ', Color::Cyan);
         }
 
         for e in self.land_enemies.iter() {
-            renderer.put_cell(e.position.x as u16, e.position.y as u16, 'L', Color::Magenta);
+            renderer.put_cell(e.position.x as u16, e.position.y as u16, ' ', Color::Cyan);
         }
 
         let score = format!("Score: {} Xn: {} Full: {:.0}% Time: 90",
