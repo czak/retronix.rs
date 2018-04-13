@@ -284,29 +284,33 @@ impl PlayState {
     fn render_box(&self, renderer: &mut Renderer, text: &str) {
         let len = text.len() as u16;
 
-        let origin_x = (BOARD_WIDTH as u16 - len) / 2 - 1;
+        let origin_x = (BOARD_WIDTH as u16 - len) / 2;
         let origin_y = BOARD_HEIGHT as u16 / 2 - 1;
 
+        let mut draw = |x: u16, y: u16, c: char| {
+            renderer.put_cell(x + origin_x, y + origin_y, c, Color::White);
+        };
+
         // ┌────┐
-        renderer.put_cell(origin_x, origin_y, '┌', Color::White);
-        for x in origin_x..origin_x + len {
-            renderer.put_cell(x + 1, origin_y, '─', Color::White);
+        draw(0, 0, '┌');
+        for x in 0..len {
+            draw(x + 1, 0, '─');
         }
-        renderer.put_cell(origin_x + len, origin_y, '┐', Color::White);
+        draw(len + 1, 0, '┐');
 
         // │TEXT|
-        renderer.put_cell(origin_x, origin_y + 1, '│', Color::White);
+        draw(0, 1, '│');
         for (x, c) in text.chars().enumerate() {
-            renderer.put_cell(origin_x + x as u16 + 1, origin_y + 1, c, Color::White);
+            draw(x as u16 + 1, 1, c);
         }
-        renderer.put_cell(origin_x + len, origin_y + 1, '│', Color::White);
+        draw(len + 1, 1, '│');
 
         // └────┘
-        renderer.put_cell(origin_x, origin_y + 2, '└', Color::White);
-        for x in origin_x..origin_x + len {
-            renderer.put_cell(x + 1, origin_y + 2, '─', Color::White);
+        draw(0, 2, '└');
+        for x in 0..len {
+            draw(x + 1, 2, '─');
         }
-        renderer.put_cell(origin_x + len, origin_y + 2, '┘', Color::White);
+        draw(len + 1, 2, '┘');
     }
 }
 
@@ -387,7 +391,7 @@ impl State for PlayState {
             renderer.put_cell(e.position.x as u16, e.position.y as u16, ' ', Color::Cyan);
         }
 
-        let score = format!("Score: {} Xn: {} Full: {:.0}% Time: 90",
+        let score = format!("Score: {:<10}                     Xn: {}                            Full: {:>2.0}%",
                             self.score,
                             self.lives,
                             self.board.fill_ratio * 100.0);
