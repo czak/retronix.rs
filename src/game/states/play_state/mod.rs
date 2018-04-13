@@ -280,6 +280,34 @@ impl PlayState {
             },
         ];
     }
+
+    fn render_box(&self, renderer: &mut Renderer, text: &str) {
+        let len = text.len() as u16;
+
+        let origin_x = (BOARD_WIDTH as u16 - len) / 2 - 1;
+        let origin_y = BOARD_HEIGHT as u16 / 2 - 1;
+
+        // ┌────┐
+        renderer.put_cell(origin_x, origin_y, '┌', Color::White);
+        for x in origin_x..origin_x + len {
+            renderer.put_cell(x + 1, origin_y, '─', Color::White);
+        }
+        renderer.put_cell(origin_x + len, origin_y, '┐', Color::White);
+
+        // │TEXT|
+        renderer.put_cell(origin_x, origin_y + 1, '│', Color::White);
+        for (x, c) in text.chars().enumerate() {
+            renderer.put_cell(origin_x + x as u16 + 1, origin_y + 1, c, Color::White);
+        }
+        renderer.put_cell(origin_x + len, origin_y + 1, '│', Color::White);
+
+        // └────┘
+        renderer.put_cell(origin_x, origin_y + 2, '└', Color::White);
+        for x in origin_x..origin_x + len {
+            renderer.put_cell(x + 1, origin_y + 2, '─', Color::White);
+        }
+        renderer.put_cell(origin_x + len, origin_y + 2, '┘', Color::White);
+    }
 }
 
 impl State for PlayState {
@@ -366,6 +394,12 @@ impl State for PlayState {
         for (x, c) in score.chars().take(BOARD_WIDTH).enumerate() {
             renderer.put_cell(x as u16, self.board.rows().len() as u16, c, Color::White);
         }
+
+        match self.delay {
+            Delay::NextLevel(_) => self.render_box(renderer, "YAY!"),
+            Delay::Death(_) => self.render_box(renderer, "OUCH!"),
+            _ => {},
+        };
     }
 
     fn render_parent(&self) -> bool {
