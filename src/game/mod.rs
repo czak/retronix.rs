@@ -9,6 +9,7 @@ pub enum Event {
     Down,
     Left,
     Right,
+    Select,
     Back,
 }
 

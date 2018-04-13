@@ -67,6 +67,7 @@ fn input_thread(tx: mpsc::Sender<Event>) {
                 Key::Left      => tx.send(Event::Left).unwrap(),
                 Key::Right     => tx.send(Event::Right).unwrap(),
                 Key::Esc       => tx.send(Event::Back).unwrap(),
+                Key::Char(' ') => tx.send(Event::Select).unwrap(),
                 _ => {},
             }
         }
