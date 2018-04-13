@@ -10,9 +10,16 @@ impl State for GameOverState {
     }
 
     fn render(&self, renderer: &mut Renderer) {
-        let msg = "GAME OVER";
-        for (i, c) in msg.chars().enumerate() {
-            renderer.put_cell(i as u16, 0, c, Color::Cyan);
+        let msg = [
+            "╔═══════════╗",
+            "║ GAME OVER ║",
+            "╚═══════════╝",
+        ];
+
+        for (y, line) in msg.iter().enumerate() {
+            for (x, c) in line.chars().enumerate() {
+                renderer.put_cell(x as u16 + 34, y as u16 + 11, c, Color::White);
+            }
         }
     }
 
