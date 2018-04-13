@@ -34,7 +34,7 @@ impl State for WelcomeState {
             "│                                                                              │",
             "│                                                                              │",
             "│                                                                              │",
-            "│                            Made by Lukasz Adamczak                           │",
+            "│                            Made by Łukasz Adamczak                           │",
             "│                     Based on Xonix by Ilan Rav & Dani Katz                   │",
             "│                                                                              │",
             "└──────────────────────────────────────────────────────────────────────────────┘",
