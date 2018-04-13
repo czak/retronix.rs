@@ -2,6 +2,8 @@
 
 Retronix.rs is a simple [Xonix](https://en.wikipedia.org/wiki/Xonix) clone for the terminal, and my first voyage into [Rust](https://www.rust-lang.org).
 
+For a more elaborate, cross-platform version in Java, see [czak/retronix](https://github.com/czak/retronix).
+
 ## How to run
 
 ```sh
