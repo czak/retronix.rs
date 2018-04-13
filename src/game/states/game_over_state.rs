@@ -21,6 +21,6 @@ impl State for GameOverState {
     }
 
     fn handle_event(&mut self, _event: Event) -> Transition {
-        Transition::None
+        Transition::Pop(2)
     }
 }

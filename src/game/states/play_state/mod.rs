@@ -420,6 +420,9 @@ impl State for PlayState {
             Event::Right => {
                 self.player.direction = Direction::EAST;
             },
+            Event::Back => {
+                return Transition::Pop(1);
+            },
             _ => {},
         }
 

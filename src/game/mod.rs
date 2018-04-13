@@ -5,29 +5,42 @@ mod states;
 
 pub enum Event {
     Tick,
-    Quit,
     Up,
     Down,
     Left,
     Right,
+    Back,
 }
 
 pub enum Transition {
     Push(Box<State>),
+    Pop(usize),
     Replace(Box<State>),
     None,
 }
 
 impl Transition {
-    pub fn navigate(self, states: &mut Vec<Box<State>>) {
+    /// Returns true if navigation succeeded
+    pub fn navigate(self, states: &mut Vec<Box<State>>) -> bool {
         match self {
             Transition::Push(next) => {
-               states.push(next);
+                states.push(next);
+                true
             },
             Transition::Replace(next) => {
                 *states.last_mut().unwrap() = next;
+                true
             },
-            _ => {}
+            Transition::Pop(count) => {
+                if count >= states.len() {
+                    return false;
+                }
+                for _ in 0..count {
+                    states.pop();
+                }
+                true
+            }
+            _ => true
         }
     }
 }
@@ -57,19 +70,19 @@ impl Game {
         }
     }
 
-    pub fn update(&mut self) {
-        self.current_state().update().navigate(&mut self.states);
+    pub fn update(&mut self) -> bool {
+        self.current_state().update().navigate(&mut self.states)
     }
 
     pub fn push_event(&mut self, e: Event) {
         self.events.push_back(e);
     }
 
-    pub fn handle_event(&mut self) {
-        if self.events.is_empty() { return; }
+    pub fn handle_event(&mut self) -> bool {
+        if self.events.is_empty() { return true; }
 
         let event = self.events.pop_front().unwrap();
-        self.current_state().handle_event(event).navigate(&mut self.states);
+        self.current_state().handle_event(event).navigate(&mut self.states)
     }
 
     fn current_state(&mut self) -> &mut Box<State> {

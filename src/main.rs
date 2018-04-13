@@ -43,14 +43,14 @@ fn main() {
     for event in rx {
         match event {
             Event::Tick => {
-                game.handle_event();
-                game.update();
+                if !game.handle_event() || !game.update() {
+                    break;
+                }
 
                 screen.clear();
                 game.render(&mut screen);
                 screen.flush();
             },
-            Event::Quit => break,
             e => {
                 game.push_event(e);
             },
@@ -66,7 +66,7 @@ fn input_thread(tx: mpsc::Sender<Event>) {
                 Key::Down      => tx.send(Event::Down).unwrap(),
                 Key::Left      => tx.send(Event::Left).unwrap(),
                 Key::Right     => tx.send(Event::Right).unwrap(),
-                Key::Char('q') => tx.send(Event::Quit).unwrap(),
+                Key::Esc       => tx.send(Event::Back).unwrap(),
                 _ => {},
             }
         }

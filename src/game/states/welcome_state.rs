@@ -63,6 +63,7 @@ impl State for WelcomeState {
                 let state = super::PlayState::new(1, 0, 3);
                 Transition::Push(Box::new(state))
             },
+            Event::Back => Transition::Pop(1),
             _ => Transition::None,
         }
     }
