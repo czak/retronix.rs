@@ -15,7 +15,7 @@ Tested with Rust stable 1.24.1.
 
 ## Screenshots
 
-[Click here](https://raw.githubusercontent.com/czak/retronix.rs/assets/screenshots/capture.mp4) for a moving picture.
+[Click here](https://czak.github.io/retronix.rs/index.html) for a moving picture.
 
 ![startup](https://raw.githubusercontent.com/czak/retronix.rs/assets/screenshots/startup.png)
 ![game](https://raw.githubusercontent.com/czak/retronix.rs/assets/screenshots/game.png)
